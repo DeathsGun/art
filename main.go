@@ -3,26 +3,25 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/deathsgun/art/export"
 	"github.com/deathsgun/art/login"
 	"os"
 	"strings"
 )
 
-var (
-	providerFlag = flag.String("provider", "", "")
-	usernameFlag = flag.String("username", "", "")
-	passwordFlag = flag.String("password", "", "")
-	templateFlag = flag.String("template", "", "")
-	outputFlag   = flag.String("output", "", "")
-)
-
-func init() {
-	flag.Usage = printHelp
-	flag.Parse()
-}
-
 func main() {
-	if len(os.Args) == 1 {
+	loginCmd := flag.NewFlagSet("login", flag.ExitOnError)
+	loginProvider := loginCmd.String("provider", "", "")
+	loginUsername := loginCmd.String("username", "", "")
+	loginPassword := loginCmd.String("password", "", "")
+
+	exportCmd := flag.NewFlagSet("export", flag.ExitOnError)
+	exportStart := exportCmd.String("start-date", "", "")
+	exportTemplate := flag.String("template", "", "")
+	exportOutput := flag.String("output", "", "")
+	exportProvider := flag.String("provider", "", "")
+
+	if len(os.Args) < 2 {
 		printHelp()
 		return
 	}
@@ -33,9 +32,18 @@ func main() {
 	}
 	switch command {
 	case "login":
-		login.HandleLogin(*providerFlag, *usernameFlag, *passwordFlag)
+		err := loginCmd.Parse(os.Args[2:])
+		if err != nil {
+			panic(err)
+		}
+		login.HandleLogin(*loginProvider, *loginUsername, *loginPassword)
 		return
 	case "export":
+		err := exportCmd.Parse(os.Args[2:])
+		if err != nil {
+			panic(err)
+		}
+		export.HandleExport(*exportProvider, *exportStart, *exportTemplate, *exportOutput)
 		return
 	default:
 		fmt.Printf("unknown command \"%s\" for \"art\"\n", command)

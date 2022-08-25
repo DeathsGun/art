@@ -45,8 +45,8 @@ func init() {
 	}
 }
 
-func HandleLogin(provider string, username string, password string) {
-	if provider == "" {
+func HandleLogin(prov string, username string, password string) {
+	if prov == "" {
 		if username != "" || password != "" {
 			println("can't accept username and password without an specific provider")
 			os.Exit(1)
@@ -60,39 +60,72 @@ func HandleLogin(provider string, username string, password string) {
 		}
 		return
 	}
+	var p provider.Provider = nil
+	for _, ip := range provider.ImportProviders {
+		if ip.Name() == prov {
+			p = ip
+		}
+	}
+	if p == nil {
+		for _, exportProvider := range provider.ExportProviders {
+			if exportProvider.Name() == prov {
+				p = exportProvider
+			}
+		}
+	}
+	if p == nil {
+		fmt.Printf("Provider %s not found\n", prov)
+		os.Exit(1)
+		return
+	}
+
+	if username == "" && password == "" {
+		handleLogin(p, true)
+		return
+	}
+	err := p.ValidateLogin(username, password)
+	if err != nil {
+		fmt.Printf("Error while logging in with provided credentials: %v\n", err)
+		return
+	}
+	saveLogins()
+	println("Successfully logged in with the provided credentials\n")
 }
 
 func handleLoginForAll() {
 	for _, prov := range provider.ImportProviders {
-		handleLogin(prov)
+		handleLogin(prov, false)
 	}
 	for _, exportProvider := range provider.ExportProviders {
-		handleLogin(exportProvider)
+		handleLogin(exportProvider, false)
 	}
 	saveLogins()
 }
 
-func handleLogin(prov provider.Provider) {
+func handleLogin(prov provider.Provider, force bool) {
 	if !prov.NeedsLogin() {
 		return
 	}
 	login := getLogin(prov.Name())
-	if login != nil {
+	if login != nil && !force {
 		err := prov.ValidateLogin(login.Username, login.Password)
 		if err == nil {
 			return
 		}
 		fmt.Printf("Login for %s is invalid\n", prov.Name())
-	} else {
+	} else if login == nil {
 		fmt.Printf("Login for %s not found\n", prov.Name())
 	}
-	fmt.Printf("Do you wan't to reconfigure %s? [y/N]", prov.Name())
-	var yesNo string
-	_, _ = fmt.Scanf("%s", &yesNo)
-	if strings.ToLower(yesNo) != "y" {
-		fmt.Printf("Oke skipping configuration for %s", prov.Name())
-		saveLogins()
-		return
+
+	if !force {
+		fmt.Printf("Do you wan't to configure %s? [y/N] ", prov.Name())
+		var yesNo string
+		_, _ = fmt.Scanf("%s", &yesNo)
+		if strings.ToLower(yesNo) != "y" {
+			fmt.Printf("Oke skipping configuration for %s", prov.Name())
+			saveLogins()
+			return
+		}
 	}
 
 	for i := 0; i < 3; i++ {
@@ -140,7 +173,8 @@ func requireInput(text string) string {
 
 func requirePassword(text string) string {
 	fmt.Printf(text)
-	password, err := term.ReadPassword(syscall.Stdin)
+	//goland:noinspection GoRedundantConversion
+	password, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return ""
 	}
