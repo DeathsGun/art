@@ -1,6 +1,6 @@
 package provider
 
-var ImportProviders = map[string]ImportProvider{}
+var ImportProviders = map[string]ImportProvider{"untis": NewUntisProvider()}
 var ExportProviders = map[string]ExportProvider{"test": NewTestProvider()}
 
 type Provider interface {

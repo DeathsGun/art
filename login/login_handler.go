@@ -140,7 +140,7 @@ func requireInput(text string) string {
 
 func requirePassword(text string) string {
 	fmt.Printf(text)
-	password, err := term.ReadPassword(syscall.Stdin)
+	password, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return ""
 	}
