@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/deathsgun/art/provider"
-	"golang.org/x/term"
 	"os"
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"github.com/deathsgun/art/provider"
+	"golang.org/x/term"
 )
 
 var logins []*Login
@@ -140,7 +141,7 @@ func requireInput(text string) string {
 
 func requirePassword(text string) string {
 	fmt.Printf(text)
-	password, err := term.ReadPassword(syscall.Stdin)
+	password, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return ""
 	}
