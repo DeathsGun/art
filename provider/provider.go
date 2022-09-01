@@ -1,7 +1,7 @@
 package provider
 
-var ImportProviders = map[string]ImportProvider{}
-var ExportProviders = map[string]ExportProvider{"test": NewTestProvider()}
+var ImportProviders []ImportProvider
+var ExportProviders = []ExportProvider{NewTestProvider()}
 
 type Provider interface {
 	Name() string
