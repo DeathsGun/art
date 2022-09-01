@@ -3,6 +3,7 @@ package export
 import (
 	"fmt"
 	"github.com/deathsgun/art/provider"
+	"github.com/deathsgun/art/provider/registry"
 	"os"
 )
 
@@ -13,7 +14,7 @@ func HandleExport(prov string, start string, temp string, output string) {
 	}
 
 	var exportProvider provider.ExportProvider = nil
-	for _, p := range provider.ExportProviders {
+	for _, p := range registry.ExportProviders {
 		if p.Name() == prov {
 			exportProvider = p
 		}
@@ -29,8 +30,8 @@ func HandleExport(prov string, start string, temp string, output string) {
 		Entries: []*provider.Entry{},
 	}
 
-	for _, iprov := range provider.ImportProviders {
-		entries, err := iprov.Import()
+	for _, iprov := range registry.ImportProviders {
+		entries, err := iprov.Import(start)
 		if err != nil {
 			fmt.Printf("Skipping import provider %s because it errored: %v", iprov.Name(), entries)
 			continue
@@ -38,7 +39,7 @@ func HandleExport(prov string, start string, temp string, output string) {
 		report.Entries = append(report.Entries, entries...)
 	}
 
-	err := exportProvider.Export(report)
+	err := exportProvider.Export(report, start, temp, output)
 	if err != nil {
 		return
 	}
