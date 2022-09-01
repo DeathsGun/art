@@ -7,7 +7,7 @@ func (e *excelProvider) Name() string {
 	return ""
 }
 
-func (t *excelProvider) ValidateLogin(username string, password string) error {
+func (e *excelProvider) ValidateLogin(username string, password string) error {
 	return nil
 }
 
@@ -15,7 +15,7 @@ func (e *excelProvider) NeedsLogin() bool {
 	return false
 }
 
-func (t *excelProvider) Export(report *Report) error {
+func (e *excelProvider) Export(report *Report, startDate string, templateFile string, outputDir string) error {
 	return nil
 }
 
