@@ -24,14 +24,14 @@ func (e *excelProvider) NeedsLogin() bool {
 func (e *excelProvider) Export(report *Report, startDate string, templateFile string, outputDir string) error {
 	outputFile := outputDir + "\\" + startDate + ".xlsx"
 	content := ""
-	f, err := excelize.OpenFile(templateFile)
+	excelFile, err := excelize.OpenFile(templateFile)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 	defer func() {
 		// Close the spreadsheet.
-		if err := f.Close(); err != nil {
+		if err := excelFile.Close(); err != nil {
 			fmt.Println(err)
 		}
 	}()
@@ -40,9 +40,9 @@ func (e *excelProvider) Export(report *Report, startDate string, templateFile st
 		content += "- " + v.Text + " \n"
 	}
 
-	f.SetCellValue(f.GetSheetName(0), "A42", content)
+	excelFile.SetCellValue(excelFile.GetSheetName(0), "A42", content)
 	fmt.Println("Excel Export succeed!")
-	if err := f.SaveAs(outputFile); err != nil {
+	if err := excelFile.SaveAs(outputFile); err != nil {
 		fmt.Println(err)
 		return err
 	}
