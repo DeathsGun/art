@@ -23,9 +23,18 @@ func (u *Untis) Logout() error {
 	return u.client.Call("logout", nil, nil)
 }
 
-func (u *Untis) GetTimetable(request *TimetableRequest) (*[]TimetablePeriod, error) {
+func (u *Untis) GetClassList(request ClassListRequest) (*[]ClassListEntry, error) {
+	result := &[]ClassListEntry{}
+	err := u.client.Call("getKlassen", request, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (u *Untis) GetTimetable(options TimetableOptions) (*[]TimetablePeriod, error) {
 	result := &[]TimetablePeriod{}
-	err := u.client.Call("getTimetable", request, result)
+	err := u.client.Call("getTimetable", TimetableRequest{Options: options}, result)
 	if err != nil {
 		return nil, err
 	}

@@ -31,6 +31,7 @@ func Dial(url string) (*Client, error) {
 
 func (c *Client) Call(method string, params any, result any) error {
 	buf := &bytes.Buffer{}
+
 	err := json.NewEncoder(buf).Encode(&Request{
 		Id:      uuid.NewString(),
 		Method:  method,
