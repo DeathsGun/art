@@ -1,13 +1,132 @@
 package api
 
-type Person int
-type PeriodType string
-type PeriodState string
+type ElementType int
 
 const (
-	Teacher  Person = 2
-	Students Person = 5
+	LessonElement  ElementType = 1
+	TeacherElement ElementType = 2
+	SubjectElement ElementType = 3
+	RoomElement    ElementType = 4
+	StudentElement ElementType = 5
 )
+
+//region Person search
+
+type PersonSearchRequest struct {
+	Type       ElementType `json:"type"`
+	ForeName   string      `json:"fn"`
+	SurName    string      `json:"sn"`
+	DayOfBirth int         `json:"dob"`
+}
+
+type PersonSearchResponse int
+
+//endregion
+
+//region SchoolYears
+
+type SchoolYear struct {
+	Id        int    `json:"id"`
+	Name      string `json:"name,omitempty"`
+	StartDate int    `json:"startDate,omitempty"`
+	EndDate   int    `json:"endDate,omitempty"`
+}
+
+//endregion
+
+//region TimeGrid
+
+type Day int
+
+const (
+	Sunday = iota + 1
+	Monday
+	Tuesday
+	Wednesday
+	Thursday
+	Friday
+	Saturday
+)
+
+type TimeGrid struct {
+	Day       Day         `json:"day"`
+	TimeUnits []TimeUnits `json:"timeUnits,omitempty"`
+}
+
+type TimeUnits struct {
+	StartTime int `json:"startTime"`
+	EndTime   int `json:"endTime"`
+}
+
+//endregion
+
+//region Holidays
+
+type Holiday struct {
+	Id        int    `json:"id"`
+	Name      string `json:"name,omitempty"`
+	LongName  string `json:"longName,omitempty"`
+	StartData int    `json:"startDate"`
+	EndDate   int    `json:"endDate"`
+}
+
+//endregion
+
+//region Department
+
+type Department struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name,omitempty"`
+	LongName string `json:"longName,omitempty"`
+}
+
+//endregion
+
+//region Rooms
+
+type Room struct {
+	Id        int    `json:"id"`
+	Name      string `json:"name,omitempty"`
+	LongName  string `json:"longName,omitempty"`
+	ForeColor string `json:"foreColor,omitempty"`
+	BackColor string `json:"backColor,omitempty"`
+}
+
+//endregion
+
+//region Subjects
+
+type Subject struct {
+	Id        int    `json:"id"`
+	LongName  string `json:"longName,omitempty"`
+	ForeColor string `json:"foreColor"`
+	BackColor string `json:"backColor"`
+}
+
+//endregion
+
+//region Students
+
+type Gender string
+
+const (
+	Male   = "male"
+	Female = "female"
+)
+
+type Student struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name,omitempty"`
+	ForeName string `json:"foreName,omitempty"`
+	LongName string `json:"longName,omitempty"`
+	Gender   Gender `json:"gender,omitempty"`
+}
+
+//endregion
+
+//region Timetable
+
+type PeriodType string
 
 const (
 	Lesson           PeriodType = ""
@@ -16,6 +135,8 @@ const (
 	BreakSupervision PeriodType = "bs"
 	Examination      PeriodType = "ex"
 )
+
+type PeriodState string
 
 const (
 	Default   PeriodState = ""
@@ -67,17 +188,21 @@ type TimetablePeriod struct {
 	BookingRemark    string                    `json:"bkRemark,omitempty"`
 	BookingText      string                    `json:"bkText,omitempty"`
 	Classes          []TimetablePeriodListItem `json:"kl"`
-	Teachers         []TimetablePeriodListItem `json:"teachers"`
-	Subjects         []TimetablePeriodListItem `json:"subjects"`
-	Rooms            []TimetablePeriodListItem `json:"rooms"`
+	Teachers         []TimetablePeriodListItem `json:"te"`
+	Subjects         []TimetablePeriodListItem `json:"su"`
+	Rooms            []TimetablePeriodListItem `json:"ro"`
 }
 
 type TimetablePeriodListItem struct {
 	Id          int    `json:"id"`
 	Name        string `json:"name,omitempty"`
 	LongName    string `json:"longname,omitempty"`
-	ExternalKey string `json:"externalKey,omitempty"`
+	ExternalKey string `json:"externalkey,omitempty"`
 }
+
+//endregion
+
+//region ClassList
 
 type ClassListRequest struct {
 	SchoolYearId string `json:"schoolyearId,omitempty"`
@@ -91,10 +216,14 @@ type ClassListEntry struct {
 	BackColor int    `json:"backColor"`
 }
 
+//endregion
+
+//region Login
+
 type LoginResponse struct {
-	SessionId  string `json:"sessionId"`
-	PersonType Person `json:"personType"`
-	PersonId   int    `json:"personId"`
+	SessionId  string      `json:"sessionId"`
+	PersonType ElementType `json:"personType"`
+	PersonId   int         `json:"personId"`
 }
 
 type LoginRequest struct {
@@ -102,3 +231,5 @@ type LoginRequest struct {
 	Password string `json:"password"`
 	Client   string `json:"client"`
 }
+
+//endregion
