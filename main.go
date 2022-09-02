@@ -17,9 +17,9 @@ func main() {
 
 	exportCmd := flag.NewFlagSet("export", flag.ExitOnError)
 	exportStart := exportCmd.String("start-date", "", "")
-	exportTemplate := flag.String("template", "", "")
-	exportOutput := flag.String("output", "", "")
-	exportProvider := flag.String("provider", "", "")
+	exportTemplate := exportCmd.String("template", "", "")
+	exportOutput := exportCmd.String("output", "", "")
+	exportProvider := exportCmd.String("provider", "", "")
 
 	if len(os.Args) < 2 {
 		printHelp()

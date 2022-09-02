@@ -1,8 +1,5 @@
 package provider
 
-var ImportProviders []ImportProvider
-var ExportProviders = []ExportProvider{NewTestProvider()}
-
 type Provider interface {
 	Name() string
 	ValidateLogin(username string, password string) error
@@ -11,10 +8,10 @@ type Provider interface {
 
 type ImportProvider interface {
 	Provider
-	Import() ([]*Entry, error)
+	Import(startDate string) ([]*Entry, error)
 }
 
 type ExportProvider interface {
 	Provider
-	Export(report *Report) error
+	Export(report *Report, startDate string, templateFile string, outputDir string) error
 }

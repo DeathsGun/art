@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/deathsgun/art/provider"
+	"github.com/deathsgun/art/provider/registry"
 	"golang.org/x/term"
 	"os"
 	"path/filepath"
@@ -61,13 +62,13 @@ func HandleLogin(prov string, username string, password string) {
 		return
 	}
 	var p provider.Provider = nil
-	for _, ip := range provider.ImportProviders {
+	for _, ip := range registry.ImportProviders {
 		if ip.Name() == prov {
 			p = ip
 		}
 	}
 	if p == nil {
-		for _, exportProvider := range provider.ExportProviders {
+		for _, exportProvider := range registry.ExportProviders {
 			if exportProvider.Name() == prov {
 				p = exportProvider
 			}
@@ -93,10 +94,10 @@ func HandleLogin(prov string, username string, password string) {
 }
 
 func handleLoginForAll() {
-	for _, prov := range provider.ImportProviders {
+	for _, prov := range registry.ImportProviders {
 		handleLogin(prov, false)
 	}
-	for _, exportProvider := range provider.ExportProviders {
+	for _, exportProvider := range registry.ExportProviders {
 		handleLogin(exportProvider, false)
 	}
 	saveLogins()
