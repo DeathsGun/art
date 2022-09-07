@@ -30,8 +30,9 @@ func (t *textProvider) Export(report *Report, startDate string, templateFile str
 	if startDate == "" {
 		startDate = time.Now().Format("2006-01-02")
 	}
+	_ = os.MkdirAll(outputDir, os.ModePerm)
 
-	file, err := os.OpenFile(filepath.Join(outputDir, startDate+".txt"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
+	file, err := os.OpenFile(filepath.Join(outputDir, startDate+".txt"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
 	if err != nil {
 		return err
 	}

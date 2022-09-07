@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/deathsgun/art/login"
 	"github.com/deathsgun/art/provider"
+	"regexp"
 	"time"
 )
 
@@ -30,6 +31,8 @@ func (u *untisImportProvider) ValidateLogin(username string, password string) er
 func (u *untisImportProvider) NeedsLogin() bool {
 	return true
 }
+
+var numberRegex = regexp.MustCompile("\\d+")
 
 func (u *untisImportProvider) Import(startDate string) ([]*provider.Entry, error) {
 	t := time.Now()
@@ -68,6 +71,7 @@ func (u *untisImportProvider) Import(startDate string) ([]*provider.Entry, error
 	if len(entries) == 0 {
 		return nil, fmt.Errorf("no entries for date %s", startDate)
 	}
+
 	sortedEntries := map[string][]CalendarEntry{}
 	for _, entry := range entries {
 		value, ok := sortedEntries[entry.StartDateTime]
@@ -92,6 +96,11 @@ func (u *untisImportProvider) Import(startDate string) ([]*provider.Entry, error
 			}
 			if entry.TeachingContent != "" {
 				message = entry.TeachingContent
+			}
+			if entry.Subject != nil {
+				message = numberRegex.ReplaceAllString(entry.Subject.ShortName, "") + ": " + message
+			} else {
+				message = entry.LessonInfo + ": " + message
 			}
 
 			result = append(result, &provider.Entry{

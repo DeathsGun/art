@@ -2,8 +2,11 @@ package provider
 
 import (
 	"bytes"
+	_ "embed"
+	"errors"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -23,12 +26,20 @@ func (e *excelProvider) NeedsLogin() bool {
 	return false
 }
 
-func (e *excelProvider) Export(report *Report, startDate string, templateFile string, outputDir string) error {
-	fileName := startDate + ".xlsx"
-	outputFile := filepath.Join(outputDir, fileName)
+//go:embed Template.xlsx
+var template []byte
+
+func (e *excelProvider) Export(report *Report, startDate string, cell string, outputDir string) error {
+	if outputDir == "" {
+		return errors.New("output dir required")
+	}
+	if startDate == "" {
+		startDate = time.Now().Format("2006-01-02")
+	}
+	outputFile := filepath.Join(outputDir, startDate+".xlsx")
 	buffer := &bytes.Buffer{}
 
-	excelFile, err := excelize.OpenFile(templateFile)
+	excelFile, err := excelize.OpenReader(bytes.NewReader(template))
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -40,11 +51,31 @@ func (e *excelProvider) Export(report *Report, startDate string, templateFile st
 		}
 	}()
 
+	var dates []string
 	for _, v := range report.Entries {
-		buffer.WriteString(fmt.Sprintf("- %s\n", v.Text))
+		date := v.Date.Format("Monday 02.01.2006:")
+		if !Contains(dates, date) {
+			_, err = buffer.WriteString("\t" + date + "\n")
+			if err != nil {
+				return err
+			}
+			dates = append(dates, date)
+		}
+
+		_, err = buffer.WriteString(fmt.Sprintf("\t\t- %s\n", v.Text))
+		if err != nil {
+			return err
+		}
 	}
 
-	excelFile.SetCellValue(excelFile.GetSheetName(0), "A42", buffer.Bytes())
+	if cell == "" {
+		cell = "A42"
+	}
+
+	err = excelFile.SetCellValue(excelFile.GetSheetName(0), cell, buffer.Bytes())
+	if err != nil {
+		return err
+	}
 	fmt.Println("Excel Export succeed!")
 	if err := excelFile.SaveAs(outputFile); err != nil {
 		fmt.Println(err)
