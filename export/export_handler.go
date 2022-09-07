@@ -6,12 +6,22 @@ import (
 	"github.com/deathsgun/art/provider/registry"
 	"os"
 	"sort"
+	"time"
 )
 
-func HandleExport(prov string, start string, temp string, output string) {
+func HandleExport(prov string, start string, output string) {
 	if prov == "" {
 		println("a provider for export is required")
 		os.Exit(1)
+	}
+	var err error
+	t := time.Now()
+	if start != "" {
+		t, err = time.Parse("02.01.2006", start)
+		if err != nil {
+			println(err.Error())
+			os.Exit(1)
+		}
 	}
 
 	var exportProvider provider.ExportProvider = nil
@@ -49,7 +59,7 @@ func HandleExport(prov string, start string, temp string, output string) {
 		return report.Entries[i].Date.Before(report.Entries[j].Date)
 	})
 
-	err := exportProvider.Export(report, start, temp, output)
+	err = exportProvider.Export(report, t, output)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

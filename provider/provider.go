@@ -1,5 +1,7 @@
 package provider
 
+import "time"
+
 type Provider interface {
 	Name() string
 	ValidateLogin(username string, password string) error
@@ -13,5 +15,5 @@ type ImportProvider interface {
 
 type ExportProvider interface {
 	Provider
-	Export(report *Report, startDate string, templateFile string, outputDir string) error
+	Export(report *Report, startDate time.Time, outputDir string) error
 }

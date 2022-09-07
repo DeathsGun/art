@@ -25,7 +25,6 @@ func main() {
 
 	exportCmd := flag.NewFlagSet("export", flag.ExitOnError)
 	exportStart := exportCmd.String("start-date", "", "")
-	exportTemplate := exportCmd.String("template", "", "")
 	exportOutput := exportCmd.String("output", "", "")
 	exportProvider := exportCmd.String("provider", "", "")
 
@@ -51,7 +50,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		export.HandleExport(*exportProvider, *exportStart, *exportTemplate, *exportOutput)
+		export.HandleExport(*exportProvider, *exportStart, *exportOutput)
 		return
 	default:
 		fmt.Printf("unknown command \"%s\" for \"art\"\n", command)

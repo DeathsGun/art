@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"os/user"
 	"path/filepath"
 	"time"
 
@@ -29,14 +30,11 @@ func (e *excelProvider) NeedsLogin() bool {
 //go:embed Template.xlsx
 var template []byte
 
-func (e *excelProvider) Export(report *Report, startDate string, cell string, outputDir string) error {
+func (e *excelProvider) Export(report *Report, startDate time.Time, outputDir string) error {
 	if outputDir == "" {
 		return errors.New("output dir required")
 	}
-	if startDate == "" {
-		startDate = time.Now().Format("2006-01-02")
-	}
-	outputFile := filepath.Join(outputDir, startDate+".xlsx")
+	outputFile := filepath.Join(outputDir, startDate.Format("2006-01-02")+".xlsx")
 	buffer := &bytes.Buffer{}
 
 	excelFile, err := excelize.OpenReader(bytes.NewReader(template))
@@ -68,15 +66,35 @@ func (e *excelProvider) Export(report *Report, startDate string, cell string, ou
 		}
 	}
 
-	if cell == "" {
-		cell = "A42"
-	}
+	mondayDiff := time.Monday - startDate.Weekday()
+	monday := startDate.Add(time.Hour * time.Duration(24*mondayDiff))
 
-	err = excelFile.SetCellValue(excelFile.GetSheetName(0), cell, buffer.Bytes())
+	sheet := excelFile.GetSheetName(0)
+	// Begin
+	err = excelFile.SetCellValue(sheet, "E7", monday.Format("02.01.2006"))
 	if err != nil {
 		return err
 	}
-	fmt.Println("Excel Export succeed!")
+	err = excelFile.SetCellValue(sheet, "G7", monday.Add(4*24*time.Hour).Format("02.01.2006"))
+	if err != nil {
+		return err
+	}
+	// Content
+	err = excelFile.SetCellValue(sheet, "A42", buffer.Bytes())
+	if err != nil {
+		return err
+	}
+
+	// User
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+	err = excelFile.SetCellValue(sheet, "G2", u.Name)
+	if err != nil {
+		return err
+	}
+
 	if err := excelFile.SaveAs(outputFile); err != nil {
 		fmt.Println(err)
 		return err
