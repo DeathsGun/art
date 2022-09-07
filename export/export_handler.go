@@ -32,7 +32,7 @@ func HandleExport(prov string, start string, output string) {
 	}
 
 	if exportProvider == nil {
-		println("provider %s not found", prov)
+		fmt.Printf("provider %s not found\n", prov)
 		os.Exit(1)
 	}
 

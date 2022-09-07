@@ -89,6 +89,7 @@ func HandleLogin(prov string, username string, password string) {
 		fmt.Printf("Error while logging in with provided credentials: %v\n", err)
 		return
 	}
+	setCredentials(p.Name(), username, password)
 	saveLogins()
 	println("Successfully logged in with the provided credentials\n")
 }

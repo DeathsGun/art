@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"os"
 	"os/user"
 	"path/filepath"
 	"time"
@@ -34,6 +35,7 @@ func (e *excelProvider) Export(report *Report, startDate time.Time, outputDir st
 	if outputDir == "" {
 		return errors.New("output dir required")
 	}
+	_ = os.MkdirAll(outputDir, os.ModePerm)
 	outputFile := filepath.Join(outputDir, startDate.Format("2006-01-02")+".xlsx")
 	buffer := &bytes.Buffer{}
 
