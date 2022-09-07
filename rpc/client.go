@@ -66,3 +66,7 @@ func (c *Client) Call(method string, params any, result any) error {
 	}
 	return nil
 }
+
+func (c *Client) Client() *http.Client {
+	return &c.client
+}

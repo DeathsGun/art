@@ -15,8 +15,9 @@ func (u *untisImportProvider) NeedsLogin() bool {
 	return false
 }
 
-func (u *untisImportProvider) Import() ([]*Entry, error) {
-	return nil, nil
+func (u *untisImportProvider) Import(startDate string) ([]*Entry, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func NewUntisProvider() ImportProvider {
