@@ -1,7 +1,9 @@
 package provider
 
 import (
+	"bytes"
 	"fmt"
+	"path/filepath"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -22,8 +24,10 @@ func (e *excelProvider) NeedsLogin() bool {
 }
 
 func (e *excelProvider) Export(report *Report, startDate string, templateFile string, outputDir string) error {
-	outputFile := outputDir + "\\" + startDate + ".xlsx"
-	content := ""
+	fileName := startDate + ".xlsx"
+	outputFile := filepath.Join(outputDir, fileName)
+	buffer := &bytes.Buffer{}
+
 	excelFile, err := excelize.OpenFile(templateFile)
 	if err != nil {
 		fmt.Println(err)
@@ -37,10 +41,10 @@ func (e *excelProvider) Export(report *Report, startDate string, templateFile st
 	}()
 
 	for _, v := range report.Entries {
-		content += "- " + v.Text + " \n"
+		buffer.WriteString(fmt.Sprintf("- %s\n", v.Text))
 	}
 
-	excelFile.SetCellValue(excelFile.GetSheetName(0), "A42", content)
+	excelFile.SetCellValue(excelFile.GetSheetName(0), "A42", buffer.Bytes())
 	fmt.Println("Excel Export succeed!")
 	if err := excelFile.SaveAs(outputFile); err != nil {
 		fmt.Println(err)

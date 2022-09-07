@@ -1,8 +1,10 @@
 package provider
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type textProvider struct {
@@ -21,8 +23,10 @@ func (t *textProvider) NeedsLogin() bool {
 }
 
 func (t *textProvider) Export(report *Report, startDate string, templateFile string, outputDir string) error {
-	outputFile := outputDir + "\\" + startDate + ".txt"
-	content := ""
+	fileName := startDate + ".txt"
+	outputFile := filepath.Join(outputDir, fileName)
+	buffer := &bytes.Buffer{}
+
 	textFile, err := os.Create(outputFile)
 	if err != nil {
 		return err
@@ -35,10 +39,10 @@ func (t *textProvider) Export(report *Report, startDate string, templateFile str
 	}()
 
 	for _, v := range report.Entries {
-		content += "- " + v.Text + " \n"
+		buffer.WriteString(fmt.Sprintf("- %s\n", v.Text))
 	}
 
-	textFile.WriteString(content) //NOCH NICHT FERTIG!!!! Keine Fiesen Kommentare erst Mittwoch!
+	textFile.WriteString(buffer.String())
 
 	if err != nil {
 		return err

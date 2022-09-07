@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "args": ["export", "--provider=excel"],
+            "args": ["export", "--provider=text"],
             "name": "Launch Package",
             "type": "go",
             "request": "launch",
