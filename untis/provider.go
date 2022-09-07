@@ -38,12 +38,12 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 	startDate = startDate.Add(time.Hour * time.Duration(-startDate.Hour())).
 		Add(time.Minute * time.Duration(-startDate.Minute())).
 		Add(time.Second * time.Duration(-startDate.Second()))
-	fmt.Printf("Importing for %s as start date\n", startDate.Format(time.RFC3339))
+	fmt.Printf("[Untis] Importing for %s as start date\n", startDate.Format(time.RFC3339))
 	un, err := NewUntisAPI("bk-ahaus")
 	if err != nil {
 		return nil, err
 	}
-	username, password := login.GetLogin("untis")
+	username, password := login.GetLogin(u.Name())
 	if username == "" || password == "" {
 		return nil, errors.New("untis login not configured")
 	}

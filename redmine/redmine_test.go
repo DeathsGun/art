@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 )
 
 func PrepareRedmineAPI(t *testing.T) *Redmine {
@@ -17,6 +18,15 @@ func PrepareRedmineAPI(t *testing.T) *Redmine {
 func TestRedmineLogin(t *testing.T) {
 	redmine := PrepareRedmineAPI(t)
 	fmt.Printf("%+v", redmine.RedmineUser)
+}
+
+func TestRedmine_GetTimeEntries(t *testing.T) {
+	redmine := PrepareRedmineAPI(t)
+	timeEntries, err := redmine.GetTimeEntries(100, 0, time.Now().Add(-time.Hour*24*60), time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("%+v", timeEntries)
 }
 
 func TestRedmineGetIssues(t *testing.T) {

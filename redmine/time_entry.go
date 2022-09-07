@@ -2,6 +2,13 @@ package redmine
 
 import "time"
 
+type TimeEntriesResponse struct {
+	TimeEntries []TimeEntry `json:"time_entries"`
+	TotalCount  int         `json:"total_count"`
+	Offset      int         `json:"offset"`
+	Limit       int         `json:"limit"`
+}
+
 type TimeEntry struct {
 	Id           int            `json:"id"`
 	Project      NamedItem      `json:"project"`

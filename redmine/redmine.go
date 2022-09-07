@@ -7,6 +7,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -17,7 +18,7 @@ type Redmine struct {
 	RedmineUser   RedmineUser
 }
 
-func (r *Redmine) getAPIKey() (*AccountResponse, error) {
+func (r *Redmine) GetAccountInformation() (*AccountResponse, error) {
 	result := &AccountResponse{}
 	err := r.CreateHTTPRequest("/my/account.json", url.Values{}, result)
 	if err != nil {
@@ -38,8 +39,36 @@ func (r *Redmine) GetIssues(limit int, page int) (*IssueResponse, error) {
 	return result, nil
 }
 
-func (r *Redmine) GetRelevantIssues() (*IssueResponse, error) {
-	return nil, nil
+func (r *Redmine) GetIssueDetails(limit int, page int, issueIds ...int) (*IssueResponse, error) {
+	result := &IssueResponse{}
+	s, err := json.Marshal(issueIds)
+	if err != nil {
+		return nil, err
+	}
+	err = r.CreateHTTPRequest("/issues.json", url.Values{
+		"limit":    []string{strconv.Itoa(limit)},
+		"offset":   []string{strconv.Itoa(limit * page)},
+		"issue_id": []string{strings.Trim(string(s), "[]")},
+	}, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (r *Redmine) GetTimeEntries(limit int, page int, from time.Time, to time.Time) (*TimeEntriesResponse, error) {
+	result := &TimeEntriesResponse{}
+	err := r.CreateHTTPRequest("/time_entries.json", url.Values{
+		"limit":   []string{strconv.Itoa(limit)},
+		"offset":  []string{strconv.Itoa(limit * page)},
+		"user_id": []string{strconv.Itoa(r.RedmineUser.Id)},
+		"from":    []string{from.Format("2006-01-02")},
+		"to":      []string{to.Format("2006-01-02")},
+	}, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func (r *Redmine) CreateHTTPRequest(endpoint string, params url.Values, result any) error {
@@ -82,7 +111,7 @@ func NewRedmineAPI(baseURL string, authorization *RedmineAuthorization) (*Redmin
 		},
 		Authorization: *authorization,
 	}
-	accountResponse, err := redmine.getAPIKey()
+	accountResponse, err := redmine.GetAccountInformation()
 	if err != nil {
 		return nil, err
 	}
