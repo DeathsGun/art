@@ -27,8 +27,14 @@ func (r *redmineImportProvider) NeedsLogin() bool {
 }
 
 func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, error) {
-
-	return nil, nil
+	testEntry := &provider.Entry{
+		Date:     startDate,
+		Category: provider.ACTIVITY,
+		Text:     "Kyshaftiger Test um zu checken obs klappt // Spoiler: Ich musste das fett fixen @Linus oder @Gerhard // Excel-Provider",
+	}
+	var result []*provider.Entry
+	result = append(result, testEntry)
+	return result, nil
 }
 
 func NewRedmineProvider() *redmineImportProvider {

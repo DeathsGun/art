@@ -37,7 +37,12 @@ func (e *excelProvider) Export(report *Report, startDate time.Time, outputDir st
 	}
 	_ = os.MkdirAll(outputDir, os.ModePerm)
 	outputFile := filepath.Join(outputDir, startDate.Format("2006-01-02")+".xlsx")
-	buffer := &bytes.Buffer{}
+
+	bufferMap := map[Category]*bytes.Buffer{}
+
+	bufferMap[ACTIVITY] = &bytes.Buffer{}
+	bufferMap[SUBJECTS] = &bytes.Buffer{}
+	bufferMap[TRAINING] = &bytes.Buffer{}
 
 	excelFile, err := excelize.OpenReader(bytes.NewReader(template))
 	if err != nil {
@@ -55,14 +60,13 @@ func (e *excelProvider) Export(report *Report, startDate time.Time, outputDir st
 	for _, v := range report.Entries {
 		date := v.Date.Format("Monday 02.01.2006:")
 		if !Contains(dates, date) {
-			_, err = buffer.WriteString("\t" + date + "\n")
+			_, err = bufferMap[v.Category].WriteString("\t" + date + "\n")
 			if err != nil {
 				return err
 			}
 			dates = append(dates, date)
 		}
-
-		_, err = buffer.WriteString(fmt.Sprintf("\t\t- %s\n", v.Text))
+		_, err = bufferMap[v.Category].WriteString(fmt.Sprintf("\t\t- %s\n", v.Text))
 		if err != nil {
 			return err
 		}
@@ -81,8 +85,19 @@ func (e *excelProvider) Export(report *Report, startDate time.Time, outputDir st
 	if err != nil {
 		return err
 	}
-	// Content
-	err = excelFile.SetCellValue(sheet, "A42", buffer.Bytes())
+
+	//Content
+	err = excelFile.SetCellValue(sheet, "A10", bufferMap[ACTIVITY].Bytes())
+	if err != nil {
+		return err
+	}
+
+	err = excelFile.SetCellValue(sheet, "A30", bufferMap[TRAINING].Bytes())
+	if err != nil {
+		return err
+	}
+
+	err = excelFile.SetCellValue(sheet, "A42", bufferMap[SUBJECTS].Bytes())
 	if err != nil {
 		return err
 	}
