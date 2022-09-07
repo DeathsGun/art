@@ -34,19 +34,11 @@ func (u *untisImportProvider) NeedsLogin() bool {
 
 var numberRegex = regexp.MustCompile("\\d+")
 
-func (u *untisImportProvider) Import(startDate string) ([]*provider.Entry, error) {
-	t := time.Now()
-	t = t.Add(time.Hour * time.Duration(-t.Hour())).
-		Add(time.Minute * time.Duration(-t.Minute())).
-		Add(time.Second * time.Duration(-t.Second()))
-	if startDate != "" {
-		tim, err := time.Parse("02.01.06", startDate)
-		if err != nil {
-			return nil, fmt.Errorf("wrong format expected format dd.mm.yy e.g. 02.01.06: %s", err)
-		}
-		t = tim
-	}
-	fmt.Printf("Importing for %s as start date\n", t.Format(time.RFC3339))
+func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, error) {
+	startDate = startDate.Add(time.Hour * time.Duration(-startDate.Hour())).
+		Add(time.Minute * time.Duration(-startDate.Minute())).
+		Add(time.Second * time.Duration(-startDate.Second()))
+	fmt.Printf("Importing for %s as start date\n", startDate.Format(time.RFC3339))
 	un, err := NewUntisAPI("bk-ahaus")
 	if err != nil {
 		return nil, err
@@ -64,7 +56,7 @@ func (u *untisImportProvider) Import(startDate string) ([]*provider.Entry, error
 		_ = un.Logout()
 	}()
 
-	entries, err := un.Details(t, t.Add(23*time.Hour))
+	entries, err := un.Details(startDate, startDate.Add(23*time.Hour))
 	if err != nil {
 		return nil, err
 	}

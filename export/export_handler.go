@@ -42,7 +42,7 @@ func HandleExport(prov string, start string, output string) {
 	}
 
 	for _, iprov := range registry.ImportProviders {
-		entries, err := iprov.Import(start)
+		entries, err := iprov.Import(t)
 		if err != nil {
 			fmt.Printf("Skipping import provider %s because it errored: %v\n", iprov.Name(), err)
 			continue

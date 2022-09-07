@@ -10,7 +10,7 @@ type Provider interface {
 
 type ImportProvider interface {
 	Provider
-	Import(startDate string) ([]*Entry, error)
+	Import(startDate time.Time) ([]*Entry, error)
 }
 
 type ExportProvider interface {
