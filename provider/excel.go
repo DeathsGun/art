@@ -60,9 +60,11 @@ func (e *excelProvider) Export(report *Report, startDate time.Time, outputDir st
 	for _, v := range report.Entries {
 		date := v.Date.Format("Monday 02.01.2006:")
 		if !Contains(dates, date) {
-			_, err = bufferMap[v.Category].WriteString("\t" + date + "\n")
-			if err != nil {
-				return err
+			if v.PrintDate {
+				_, err = bufferMap[v.Category].WriteString("\t" + date + "\n")
+				if err != nil {
+					return err
+				}
 			}
 			dates = append(dates, date)
 		}

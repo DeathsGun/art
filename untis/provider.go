@@ -45,7 +45,7 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 	}
 	username, password := login.GetLogin(u.Name())
 	if username == "" || password == "" {
-		return nil, errors.New("untis login not configured")
+		return nil, errors.New(fmt.Sprintf("%s login not configured", u.Name()))
 	}
 
 	err = un.Login(username, password)
