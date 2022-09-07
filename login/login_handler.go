@@ -123,7 +123,7 @@ func handleLogin(prov provider.Provider, force bool) {
 		var yesNo string
 		_, _ = fmt.Scanf("%s", &yesNo)
 		if strings.ToLower(yesNo) != "y" {
-			fmt.Printf("Oke skipping configuration for %s", prov.Name())
+			fmt.Printf("Oke skipping configuration for %s\n", prov.Name())
 			saveLogins()
 			return
 		}
@@ -135,14 +135,23 @@ func handleLogin(prov provider.Provider, force bool) {
 		println()
 		err := prov.ValidateLogin(username, password)
 		if err == nil {
-			fmt.Printf("Successfully logged in with the provided credentials")
+			println("Successfully logged in with the provided credentials")
 			setCredentials(prov.Name(), username, password)
 			saveLogins()
 			return
 		}
-		fmt.Printf("Error while logging in with provided credentials: %v\n", err)
+		fmt.Printf("\nError while logging in with provided credentials: %v\n", err)
 	}
 	println("3 incorrect attempts skipping.")
+}
+
+func GetLogin(providerName string) (string, string) {
+	for _, login := range logins {
+		if login.Name == providerName {
+			return login.Username, login.Password
+		}
+	}
+	return "", ""
 }
 
 func setCredentials(name string, username string, password string) {

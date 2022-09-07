@@ -1,6 +1,8 @@
 package registry
 
-import "github.com/deathsgun/art/provider"
+import (
+	"github.com/deathsgun/art/provider"
+)
 
 var ImportProviders = []provider.ImportProvider{}
-var ExportProviders = []provider.ExportProvider{provider.NewTextProvider(), provider.NewExcelProvider()}
+var ExportProviders = []provider.ExportProvider{}

@@ -5,9 +5,17 @@ import (
 	"fmt"
 	"github.com/deathsgun/art/export"
 	"github.com/deathsgun/art/login"
+	"github.com/deathsgun/art/provider"
+	"github.com/deathsgun/art/provider/registry"
+	"github.com/deathsgun/art/untis"
 	"os"
 	"strings"
 )
+
+func init() {
+	registry.ImportProviders = append(registry.ImportProviders, untis.NewUntisProvider())
+	registry.ExportProviders = append(registry.ExportProviders, provider.NewTextProvider(), provider.NewExcelProvider())
+}
 
 func main() {
 	loginCmd := flag.NewFlagSet("login", flag.ExitOnError)

@@ -1,10 +1,11 @@
 package provider
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type textProvider struct {
@@ -23,32 +24,55 @@ func (t *textProvider) NeedsLogin() bool {
 }
 
 func (t *textProvider) Export(report *Report, startDate string, templateFile string, outputDir string) error {
-	fileName := startDate + ".txt"
-	outputFile := filepath.Join(outputDir, fileName)
-	buffer := &bytes.Buffer{}
+	if outputDir == "" {
+		return errors.New("output dir required")
+	}
+	if startDate == "" {
+		startDate = time.Now().Format("2006-01-02")
+	}
 
-	textFile, err := os.Create(outputFile)
+	file, err := os.OpenFile(filepath.Join(outputDir, startDate+".txt"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		// Close the spreadsheet.
-		if err := textFile.Close(); err != nil {
-			fmt.Println(err)
-		}
+		_ = file.Close()
 	}()
 
+	var categories []Category
+	var dates []string
 	for _, v := range report.Entries {
-		buffer.WriteString(fmt.Sprintf("- %s\n", v.Text))
+		if !Contains(categories, v.Category) {
+			_, err = file.WriteString(v.Category.Text() + "\n")
+			if err != nil {
+				return err
+			}
+			categories = append(categories, v.Category)
+		}
+		date := v.Date.Format("Monday 02.01.2006:")
+		if !Contains(dates, date) {
+			_, err = file.WriteString("\t" + date + "\n")
+			if err != nil {
+				return err
+			}
+			dates = append(dates, date)
+		}
+
+		_, err = file.WriteString(fmt.Sprintf("\t\t- %s\n", v.Text))
+		if err != nil {
+			return err
+		}
 	}
+	return nil
+}
 
-	textFile.WriteString(buffer.String())
-
-	if err != nil {
-		return err
+func Contains[T comparable](array []T, val T) bool {
+	for _, t := range array {
+		if t == val {
+			return true
+		}
 	}
-
-	return err
+	return false
 }
 
 func NewTextProvider() ExportProvider {

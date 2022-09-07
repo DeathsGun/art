@@ -5,6 +5,7 @@ import (
 	"github.com/deathsgun/art/provider"
 	"github.com/deathsgun/art/provider/registry"
 	"os"
+	"sort"
 )
 
 func HandleExport(prov string, start string, temp string, output string) {
@@ -33,15 +34,26 @@ func HandleExport(prov string, start string, temp string, output string) {
 	for _, iprov := range registry.ImportProviders {
 		entries, err := iprov.Import(start)
 		if err != nil {
-			fmt.Printf("Skipping import provider %s because it errored: %v", iprov.Name(), entries)
+			fmt.Printf("Skipping import provider %s because it errored: %v\n", iprov.Name(), err)
 			continue
 		}
 		report.Entries = append(report.Entries, entries...)
 	}
 
-	err := exportProvider.Export(report, start, temp, output)
-	if err != nil {
-		return
+	if len(report.Entries) == 0 {
+		println("Skipping export because no provider returned data")
+		os.Exit(0)
 	}
 
+	sort.Slice(report.Entries, func(i, j int) bool {
+		return report.Entries[i].Date.Before(report.Entries[j].Date)
+	})
+
+	err := exportProvider.Export(report, start, temp, output)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	println("Successfully exported data")
 }
