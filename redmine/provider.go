@@ -19,11 +19,7 @@ func (r *redmineImportProvider) ValidateLogin(username string, password string) 
 	if err != nil {
 		return username, password, nil
 	}
-	response, err := redmineApi.GetAPIKey()
-	if err != nil {
-		return username, password, err
-	}
-	return response.User.ApiKey, "", nil
+	return redmineApi.RedmineUser.ApiKey, "", nil
 }
 
 func (r *redmineImportProvider) NeedsLogin() bool {

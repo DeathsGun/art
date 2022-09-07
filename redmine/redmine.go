@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -13,15 +14,32 @@ type Redmine struct {
 	Url           string
 	Client        http.Client
 	Authorization RedmineAuthorization
+	RedmineUser   RedmineUser
 }
 
-func (r *Redmine) GetAPIKey() (*AccountResponse, error) {
+func (r *Redmine) getAPIKey() (*AccountResponse, error) {
 	result := &AccountResponse{}
 	err := r.CreateHTTPRequest("/my/account.json", url.Values{}, result)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (r *Redmine) GetIssues(limit int, page int) (*IssueResponse, error) {
+	result := &IssueResponse{}
+	err := r.CreateHTTPRequest("/issues.json", url.Values{
+		"limit":  []string{strconv.Itoa(limit)},
+		"offset": []string{strconv.Itoa(limit * page)},
+	}, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (r *Redmine) GetRelevantIssues() (*IssueResponse, error) {
+	return nil, nil
 }
 
 func (r *Redmine) CreateHTTPRequest(endpoint string, params url.Values, result any) error {
@@ -56,12 +74,18 @@ func NewRedmineAPI(baseURL string, authorization *RedmineAuthorization) (*Redmin
 	if err != nil {
 		return nil, err
 	}
-	return &Redmine{
+	redmine := &Redmine{
 		Url: baseURL,
 		Client: http.Client{
 			Jar:     jar,
 			Timeout: 5 * time.Second,
 		},
 		Authorization: *authorization,
-	}, nil
+	}
+	accountResponse, err := redmine.getAPIKey()
+	if err != nil {
+		return nil, err
+	}
+	redmine.RedmineUser = accountResponse.User
+	return redmine, nil
 }

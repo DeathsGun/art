@@ -8,8 +8,8 @@ import (
 type RedmineAuthType int
 
 const (
-	HTTP   RedmineAuthType = 0
-	APIKEY RedmineAuthType = 1
+	HTTP   RedmineAuthType = iota
+	APIKEY RedmineAuthType = iota
 )
 
 type RedmineAuthorization struct {
