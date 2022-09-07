@@ -16,16 +16,16 @@ func (u *untisImportProvider) Name() string {
 	return "untis"
 }
 
-func (u *untisImportProvider) ValidateLogin(username string, password string) error {
+func (u *untisImportProvider) ValidateLogin(username string, password string) (string, string, error) {
 	un, err := NewUntisAPI("bk-ahaus")
 	if err != nil {
-		return err
+		return "", "", err
 	}
 	err = un.Login(username, password)
 	if err != nil {
-		return err
+		return "", "", err
 	}
-	return un.Logout()
+	return username, password, un.Logout()
 }
 
 func (u *untisImportProvider) NeedsLogin() bool {

@@ -20,8 +20,8 @@ func (e *excelProvider) Name() string {
 	return "excel"
 }
 
-func (e *excelProvider) ValidateLogin(username string, password string) error {
-	return nil
+func (e *excelProvider) ValidateLogin(username string, password string) (string, string, error) {
+	return username, password, nil
 }
 
 func (e *excelProvider) NeedsLogin() bool {
