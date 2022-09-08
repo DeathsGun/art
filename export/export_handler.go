@@ -5,7 +5,6 @@ import (
 	"github.com/deathsgun/art/provider"
 	"github.com/deathsgun/art/provider/registry"
 	"os"
-	"sort"
 	"time"
 )
 
@@ -54,10 +53,6 @@ func HandleExport(prov string, start string, output string) {
 		println("Skipping export because no provider returned data")
 		os.Exit(0)
 	}
-
-	sort.Slice(report.Entries, func(i, j int) bool {
-		return report.Entries[i].Date.Before(report.Entries[j].Date)
-	})
 
 	err = exportProvider.Export(report, t, output)
 	if err != nil {

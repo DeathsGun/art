@@ -4,7 +4,7 @@ import "time"
 
 type Provider interface {
 	Name() string
-	ValidateLogin(username string, password string) error
+	ValidateLogin(username string, password string) (string, string, error)
 	NeedsLogin() bool
 }
 

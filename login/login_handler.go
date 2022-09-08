@@ -84,7 +84,7 @@ func HandleLogin(prov string, username string, password string) {
 		handleLogin(p, true)
 		return
 	}
-	err := p.ValidateLogin(username, password)
+	username, password, err := p.ValidateLogin(username, password)
 	if err != nil {
 		fmt.Printf("Error while logging in with provided credentials: %v\n", err)
 		return
@@ -110,7 +110,7 @@ func handleLogin(prov provider.Provider, force bool) {
 	}
 	login := getLogin(prov.Name())
 	if login != nil && !force {
-		err := prov.ValidateLogin(login.Username, login.Password)
+		_, _, err := prov.ValidateLogin(login.Username, login.Password)
 		if err == nil {
 			return
 		}
@@ -134,7 +134,7 @@ func handleLogin(prov provider.Provider, force bool) {
 		username := requireInput("Username: ")
 		password := requirePassword("Password: ")
 		println()
-		err := prov.ValidateLogin(username, password)
+		username, password, err := prov.ValidateLogin(username, password)
 		if err == nil {
 			println("Successfully logged in with the provided credentials")
 			setCredentials(prov.Name(), username, password)

@@ -15,8 +15,8 @@ func (t *textProvider) Name() string {
 	return "text"
 }
 
-func (t *textProvider) ValidateLogin(username string, password string) error {
-	return nil
+func (t *textProvider) ValidateLogin(username string, password string) (string, string, error) {
+	return username, password, nil
 }
 
 func (t *textProvider) NeedsLogin() bool {

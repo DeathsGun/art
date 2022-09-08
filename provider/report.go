@@ -28,7 +28,8 @@ type Report struct {
 }
 
 type Entry struct {
-	Date     time.Time
-	Text     string
-	Category Category
+	Date      time.Time
+	Text      string
+	Category  Category
+	PrintDate bool
 }

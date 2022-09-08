@@ -6,6 +6,7 @@ import (
 	"github.com/deathsgun/art/login"
 	"github.com/deathsgun/art/provider"
 	"regexp"
+	"sort"
 	"time"
 )
 
@@ -16,16 +17,16 @@ func (u *untisImportProvider) Name() string {
 	return "untis"
 }
 
-func (u *untisImportProvider) ValidateLogin(username string, password string) error {
+func (u *untisImportProvider) ValidateLogin(username string, password string) (string, string, error) {
 	un, err := NewUntisAPI("bk-ahaus")
 	if err != nil {
-		return err
+		return "", "", err
 	}
 	err = un.Login(username, password)
 	if err != nil {
-		return err
+		return "", "", err
 	}
-	return un.Logout()
+	return username, password, un.Logout()
 }
 
 func (u *untisImportProvider) NeedsLogin() bool {
@@ -38,14 +39,14 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 	startDate = startDate.Add(time.Hour * time.Duration(-startDate.Hour())).
 		Add(time.Minute * time.Duration(-startDate.Minute())).
 		Add(time.Second * time.Duration(-startDate.Second()))
-	fmt.Printf("Importing for %s as start date\n", startDate.Format(time.RFC3339))
+	fmt.Printf("[Untis] Importing for %s as start date\n", startDate.Format(time.RFC3339))
 	un, err := NewUntisAPI("bk-ahaus")
 	if err != nil {
 		return nil, err
 	}
-	username, password := login.GetLogin("untis")
+	username, password := login.GetLogin(u.Name())
 	if username == "" || password == "" {
-		return nil, errors.New("untis login not configured")
+		return nil, errors.New(fmt.Sprintf("%s login not configured", u.Name()))
 	}
 
 	err = un.Login(username, password)
@@ -102,6 +103,9 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 			})
 		}
 	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Date.Before(result[j].Date)
+	})
 	return result, nil
 }
 

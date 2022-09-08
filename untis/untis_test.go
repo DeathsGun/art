@@ -11,7 +11,7 @@ func prepareLogin(t *testing.T) *Untis {
 	if err != nil {
 		panic(err)
 	}
-	err = u.Login(os.Getenv("UNTIS_USER"), os.Getenv("UNTIS_PASSWORD"))
+	err = u.Login(os.Getenv("UNTIS_USER"), os.Getenv("UNTIS_PW"))
 	if err != nil {
 		t.Fatal(err)
 	}
