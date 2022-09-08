@@ -122,7 +122,7 @@ func handleLogin(prov provider.Provider, force bool) {
 	if !force {
 		fmt.Printf("Do you wan't to configure %s? [y/N] ", prov.Name())
 		var yesNo string
-		_, _ = fmt.Scanf("%s", &yesNo)
+		_, _ = fmt.Scanf("%s\n", &yesNo)
 		if strings.ToLower(yesNo) != "y" {
 			fmt.Printf("Oke skipping configuration for %s\n", prov.Name())
 			saveLogins()
@@ -152,6 +152,7 @@ func GetLogin(providerName string) (string, string) {
 			return login.Username, login.Password
 		}
 	}
+
 	return "", ""
 }
 
@@ -179,7 +180,7 @@ func requireInput(text string) string {
 	if err != nil {
 		return ""
 	}
-	return strings.ReplaceAll(input, "\n", "")
+	return strings.ReplaceAll(strings.ReplaceAll(input, "\n", ""), "\r", "")
 }
 
 func requirePassword(text string) string {

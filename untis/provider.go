@@ -97,9 +97,10 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 			}
 
 			result = append(result, &provider.Entry{
-				Date:     startDateTime,
-				Text:     message,
-				Category: provider.SUBJECTS,
+				Date:      startDateTime,
+				Text:      message,
+				Category:  provider.SUBJECTS,
+				PrintDate: true,
 			})
 		}
 	}

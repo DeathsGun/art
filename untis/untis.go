@@ -3,12 +3,15 @@ package untis
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/deathsgun/art/rpc"
 	"github.com/google/uuid"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+)
+
+import (
+	"github.com/deathsgun/art/rpc"
 )
 
 const BaseUrl = "https://asopo.webuntis.com/WebUntis"

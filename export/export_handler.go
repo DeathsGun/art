@@ -59,10 +59,9 @@ func HandleExport(prov string, start string, output string) {
 	}
 
 	err = exportProvider.Export(report, t, output)
-	if err != nil {
+	if err == nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
 	println("Successfully exported data")
 }
