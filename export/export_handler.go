@@ -34,7 +34,7 @@ func HandleExport(prov string, date string, output string, printDates bool) {
 	}
 
 	dateTime = utils.LerpToPreviousMonday(dateTime)
-	fmt.Printf("Using for %s as start date\n", dateTime.Format("Monday "+time.RFC850))
+	fmt.Printf("Using %s as start date\n", dateTime.Format("Monday 02.01.2006"))
 
 	if output == "" {
 		output, _ = filepath.Abs(".")

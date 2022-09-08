@@ -39,7 +39,7 @@ func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, 
 	if err != nil {
 		return nil, err
 	}
-	endDate := startDate.Add(time.Hour * 24 * 5)
+	endDate := startDate.Add(time.Hour * 24 * 4)
 	entries, err := ra.GetTimeEntries(100, 0, startDate, endDate)
 	if err != nil {
 		return nil, err
