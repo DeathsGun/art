@@ -6,6 +6,7 @@ import (
 	"github.com/deathsgun/art/login"
 	"github.com/deathsgun/art/provider"
 	"regexp"
+	"sort"
 	"time"
 )
 
@@ -102,6 +103,9 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 			})
 		}
 	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Date.Before(result[j].Date)
+	})
 	return result, nil
 }
 

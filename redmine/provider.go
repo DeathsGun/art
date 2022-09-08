@@ -12,6 +12,7 @@ type redmineImportProvider struct {
 }
 
 const redmineURL = "https://joope.de/"
+const printDate = false
 
 func (r *redmineImportProvider) Name() string {
 	return "redmine"
@@ -57,26 +58,35 @@ func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, 
 
 	sortedEntries := map[string][]TimeEntry{}
 	for _, entry := range entries.TimeEntries {
-		value, ok := sortedEntries[entry.SpentOn]
+		value, ok := sortedEntries[entry.Project.Name]
 		if !ok {
 			value = []TimeEntry{}
 		}
 		value = append(value, entry)
-		sortedEntries[entry.SpentOn] = value
+		sortedEntries[entry.Project.Name] = value
 	}
+	var addedKeys []string
 	var result []*provider.Entry
-	for _, sameTimes := range sortedEntries {
+	for key, sameTimes := range sortedEntries {
 		for _, entry := range sameTimes {
 			startDateTime, err := time.Parse("2006-01-02", entry.SpentOn)
 			if err != nil {
 				return nil, err
 			}
-
+			if !provider.Contains(addedKeys, key) {
+				result = append(result, &provider.Entry{
+					Date:      startDateTime,
+					Text:      key + ":",
+					Category:  provider.ACTIVITY,
+					PrintDate: printDate,
+				})
+				addedKeys = append(addedKeys, key)
+			}
 			result = append(result, &provider.Entry{
-				Date:      startDateTime,
-				Text:      entry.Comments,
+				Date:      startDateTime.Add(time.Hour * 10),
+				Text:      "\t" + entry.Comments,
 				Category:  provider.ACTIVITY,
-				PrintDate: false,
+				PrintDate: printDate,
 			})
 		}
 	}
