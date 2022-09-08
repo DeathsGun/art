@@ -8,6 +8,9 @@ import (
 )
 
 func PrepareRedmineAPI(t *testing.T) *Redmine {
+	if os.Getenv("REDMINE_USER") == "" {
+		t.SkipNow()
+	}
 	redmine, err := NewRedmineAPI("https://joope.de", AuthorizeHTTP(os.Getenv("REDMINE_USER"), os.Getenv("REDMINE_PASSWORD")))
 	if err != nil {
 		t.Fatal(err)

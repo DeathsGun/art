@@ -3,41 +3,48 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/deathsgun/art/excel"
 	"github.com/deathsgun/art/export"
 	"github.com/deathsgun/art/login"
-	"github.com/deathsgun/art/provider"
 	"github.com/deathsgun/art/provider/registry"
 	"github.com/deathsgun/art/redmine"
+	"github.com/deathsgun/art/text"
 	"github.com/deathsgun/art/untis"
 	"os"
 	"strings"
 )
 
+// init Register all possible providers before main is called
 func init() {
 	registry.ImportProviders = append(registry.ImportProviders, untis.NewUntisProvider(), redmine.NewRedmineProvider())
-	registry.ExportProviders = append(registry.ExportProviders, provider.NewTextProvider(), provider.NewExcelProvider())
+	registry.ExportProviders = append(registry.ExportProviders, text.NewTextProvider(), excel.NewExcelProvider())
 }
 
 func main() {
+	// Setup command arguments for login and export
 	loginCmd := flag.NewFlagSet("login", flag.ExitOnError)
 	loginProvider := loginCmd.String("provider", "", "")
 	loginUsername := loginCmd.String("username", "", "")
 	loginPassword := loginCmd.String("password", "", "")
 
 	exportCmd := flag.NewFlagSet("export", flag.ExitOnError)
-	exportStart := exportCmd.String("start-date", "", "")
+	exportDate := exportCmd.String("date", "", "")
 	exportOutput := exportCmd.String("output", "", "")
 	exportProvider := exportCmd.String("provider", "", "")
+	exportPrintDates := exportCmd.Bool("print-dates", false, "")
 
+	// Always require a sub command
 	if len(os.Args) < 2 {
 		printHelp()
 		return
 	}
+	// Check if position where the subcommand is
 	command := os.Args[1]
 	if strings.HasPrefix(command, "-") {
 		printHelp()
 		return
 	}
+
 	switch command {
 	case "login":
 		err := loginCmd.Parse(os.Args[2:])
@@ -51,16 +58,16 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		export.HandleExport(*exportProvider, *exportStart, *exportOutput)
+		export.HandleExport(*exportProvider, *exportDate, *exportOutput, *exportPrintDates)
 		return
 	case "providers":
 		println("Import providers:")
 		for _, importProvider := range registry.ImportProviders {
-			println("\t" + importProvider.Name())
+			println(" - " + importProvider.Name())
 		}
 		println("Export providers:")
 		for _, exportProvider := range registry.ExportProviders {
-			println("\t" + exportProvider.Name())
+			println(" - " + exportProvider.Name())
 		}
 		return
 	default:
@@ -83,6 +90,7 @@ func printHelp() {
 	println("\t--username <user>")
 	println("\t--password <password>")
 	println("EXPORT FLAGS")
-	println("\t--start-date (dd.MM.YYYY) the date of a week from which data should be exported")
+	println("\t--date (dd.MM.YYYY) the date of a week from which data should be exported")
 	println("\t--output (output directory) the directory where the reports should be exported to (defaults to the current work directory)")
+	println("\t--print-dates groups report entries by date and adds the date as header")
 }

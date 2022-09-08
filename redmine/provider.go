@@ -1,10 +1,10 @@
 package redmine
 
 import (
-	"errors"
 	"fmt"
 	"github.com/deathsgun/art/login"
 	"github.com/deathsgun/art/provider"
+	"github.com/deathsgun/art/utils"
 	"time"
 )
 
@@ -31,17 +31,9 @@ func (r *redmineImportProvider) NeedsLogin() bool {
 }
 
 func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, error) {
-
-	startDateZero := startDate.Add(time.Hour * time.Duration(-startDate.Hour())).
-		Add(time.Minute * time.Duration(-startDate.Minute())).
-		Add(time.Second * time.Duration(-startDate.Second()))
-
-	startDate = LerpToPreviousMonday(startDateZero)
-
-	fmt.Printf("[Redmine] Importing for %s as start date\n", startDate.Format(time.RFC3339))
 	username, password := login.GetLogin(r.Name())
 	if username == "" && password == "" {
-		return nil, errors.New(fmt.Sprintf("%s login not configured", r.Name()))
+		return nil, provider.ErrNoLoginConfigured
 	}
 	ra, err := NewRedmineAPI(redmineURL, AuthorizeHTTP(username, password))
 	if err != nil {
@@ -73,20 +65,18 @@ func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, 
 			if err != nil {
 				return nil, err
 			}
-			if !provider.Contains(addedKeys, key) {
+			if !utils.Contains(addedKeys, key) {
 				result = append(result, &provider.Entry{
-					Date:      startDateTime,
-					Text:      key + ":",
-					Category:  provider.ACTIVITY,
-					PrintDate: printDate,
+					Date:     startDateTime,
+					Text:     key + ":",
+					Category: provider.ACTIVITY,
 				})
 				addedKeys = append(addedKeys, key)
 			}
 			result = append(result, &provider.Entry{
-				Date:      startDateTime.Add(time.Hour * 10),
-				Text:      "\t" + entry.Comments,
-				Category:  provider.ACTIVITY,
-				PrintDate: printDate,
+				Date:     startDateTime.Add(time.Hour * 10),
+				Text:     "\t" + entry.Comments,
+				Category: provider.ACTIVITY,
 			})
 		}
 	}

@@ -1,28 +1,41 @@
 package export
 
 import (
+	"errors"
 	"fmt"
 	"github.com/deathsgun/art/provider"
 	"github.com/deathsgun/art/provider/registry"
+	"github.com/deathsgun/art/utils"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-func HandleExport(prov string, start string, output string) {
+// HandleExport contains the control logic for the export
+//
+// Params:
+//
+//	prov is the provider requested by the user
+//	date is some in date in a week which will be used to export data
+//	output is the directory where export files are saved
+func HandleExport(prov string, date string, output string, printDates bool) {
 	if prov == "" {
 		println("a provider for export is required")
 		os.Exit(1)
 	}
 	var err error
-	t := time.Now()
-	if start != "" {
-		t, err = time.Parse("02.01.2006", start)
+	dateTime := time.Now()
+	if date != "" {
+		dateTime, err = time.Parse("02.01.2006", date)
 		if err != nil {
 			println(err.Error())
 			os.Exit(1)
 		}
 	}
+
+	dateTime = utils.LerpToPreviousMonday(dateTime)
+	fmt.Printf("Using for %s as start date\n", dateTime.Format("Monday "+time.RFC822))
+
 	if output == "" {
 		output, _ = filepath.Abs(".")
 	}
@@ -45,8 +58,12 @@ func HandleExport(prov string, start string, output string) {
 	}
 
 	for _, iprov := range registry.ImportProviders {
-		entries, err := iprov.Import(t)
+		entries, err := iprov.Import(dateTime)
 		if err != nil {
+			if errors.Is(err, provider.ErrNoLoginConfigured) {
+				fmt.Printf("[%s]: Skipping import. Reason: not configured\n", iprov.Name())
+				continue
+			}
 			fmt.Printf("Skipping import provider %s because it errored: %v\n", iprov.Name(), err)
 			continue
 		}
@@ -58,10 +75,11 @@ func HandleExport(prov string, start string, output string) {
 		os.Exit(0)
 	}
 
-	err = exportProvider.Export(report, t, output)
-	if err == nil {
+	err = exportProvider.Export(report, dateTime, output, printDates)
+	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+
 	println("Successfully exported data")
 }

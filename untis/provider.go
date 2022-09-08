@@ -1,7 +1,6 @@
 package untis
 
 import (
-	"errors"
 	"fmt"
 	"github.com/deathsgun/art/login"
 	"github.com/deathsgun/art/provider"
@@ -36,17 +35,13 @@ func (u *untisImportProvider) NeedsLogin() bool {
 var numberRegex = regexp.MustCompile("\\d+")
 
 func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, error) {
-	startDate = startDate.Add(time.Hour * time.Duration(-startDate.Hour())).
-		Add(time.Minute * time.Duration(-startDate.Minute())).
-		Add(time.Second * time.Duration(-startDate.Second()))
-	fmt.Printf("[Untis] Importing for %s as start date\n", startDate.Format(time.RFC3339))
 	un, err := NewUntisAPI("bk-ahaus")
 	if err != nil {
 		return nil, err
 	}
 	username, password := login.GetLogin(u.Name())
 	if username == "" || password == "" {
-		return nil, errors.New(fmt.Sprintf("%s login not configured", u.Name()))
+		return nil, provider.ErrNoLoginConfigured
 	}
 
 	err = un.Login(username, password)
@@ -57,12 +52,32 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 		_ = un.Logout()
 	}()
 
-	entries, err := un.Details(startDate, startDate.Add(23*time.Hour))
+	var result []*provider.Entry
+	for i := 0; i < 5; i++ {
+		date := startDate.Add(time.Duration(i*24) * time.Hour)
+		entries, err := u.getEntriesForDate(un, date)
+		if err != nil {
+			return nil, err
+		}
+		if len(entries) > 0 {
+			fmt.Printf("Got %d entries from \n")
+		}
+		result = append(result, entries...)
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Date.Before(result[j].Date)
+	})
+	return result, nil
+}
+
+func (u *untisImportProvider) getEntriesForDate(un *Untis, date time.Time) ([]*provider.Entry, error) {
+	entries, err := un.Details(date, date.Add(23*time.Hour))
 	if err != nil {
 		return nil, err
 	}
 	if len(entries) == 0 {
-		return nil, fmt.Errorf("no entries for date %s", startDate)
+		return nil, nil
 	}
 
 	sortedEntries := map[string][]CalendarEntry{}
@@ -104,9 +119,6 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 			})
 		}
 	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Date.Before(result[j].Date)
-	})
 	return result, nil
 }
 

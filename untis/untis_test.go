@@ -11,7 +11,7 @@ func prepareLogin(t *testing.T) *Untis {
 	if err != nil {
 		panic(err)
 	}
-	err = u.Login(os.Getenv("UNTIS_USER"), os.Getenv("UNTIS_PW"))
+	err = u.Login(os.Getenv("UNTIS_USER"), os.Getenv("UNTIS_PASSWORD"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,8 +33,8 @@ func TestUntis_Details(t *testing.T) {
 	t.Cleanup(func() {
 		_ = untis.Logout()
 	})
-	startDate := time.Now().Add(-(time.Hour + time.Minute*30)) //time.Date(2022, 9, 7, 8, 0, 0, 0, time.Local)
-	endDate := time.Now().Add(8 * time.Hour)                   // startDate.Add(time.Hour + time.Minute*30)
+	startDate := time.Date(2022, 9, 7, 8, 0, 0, 0, time.Local)
+	endDate := startDate.Add(time.Hour + time.Minute*30)
 	entries, err := untis.Details(startDate, endDate)
 	if err != nil {
 		t.Fatal(err)

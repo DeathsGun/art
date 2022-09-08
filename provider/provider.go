@@ -1,6 +1,13 @@
 package provider
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var (
+	ErrNoLoginConfigured = errors.New("no login configured")
+)
 
 type Provider interface {
 	Name() string
@@ -15,5 +22,5 @@ type ImportProvider interface {
 
 type ExportProvider interface {
 	Provider
-	Export(report *Report, startDate time.Time, outputDir string) error
+	Export(report *Report, startDate time.Time, outputDir string, printDates bool) error
 }

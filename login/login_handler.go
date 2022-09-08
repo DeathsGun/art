@@ -46,12 +46,20 @@ func init() {
 	}
 }
 
+// HandleLogin handles the art login call.
+//
+// It allows you to:
+// - Login to all providers via art login
+// - One provider via art login --provider <>
+// - Directly setting credentials via art login --provider <> --username <> --password <>
 func HandleLogin(prov string, username string, password string) {
 	if prov == "" {
+		// art login --username <> --password <>
 		if username != "" || password != "" {
 			println("can't accept username and password without an specific provider")
 			os.Exit(1)
 		}
+		// art login
 		handleLoginForAll()
 		if changed {
 			println("Successfully saved the new credentials")
@@ -94,6 +102,8 @@ func HandleLogin(prov string, username string, password string) {
 	println("Successfully logged in with the provided credentials\n")
 }
 
+// handleLoginForAll iterates over all registered providers
+// and calls handleLogin for them
 func handleLoginForAll() {
 	for _, prov := range registry.ImportProviders {
 		handleLogin(prov, false)
@@ -104,6 +114,11 @@ func handleLoginForAll() {
 	saveLogins()
 }
 
+// handleLogin checks if the provider needs a login
+// and then checks if the already configured credentials are valid.
+// If not then it will prompt the user to login, then it will
+// validate the credentials. When they're valid, it will save them
+// otherwise it will ask the user again
 func handleLogin(prov provider.Provider, force bool) {
 	if !prov.NeedsLogin() {
 		return

@@ -25,6 +25,9 @@ type Untis struct {
 func (u *Untis) Login(username string, password string) error {
 	loginResponse := &LoginResponse{}
 	err := u.client.Call("authenticate", LoginRequest{Username: username, Password: password, Client: uuid.NewString()}, loginResponse)
+	if err != nil {
+		return err
+	}
 	resp, err := u.client.Client().Get(BaseUrl + "/api/token/new")
 	if err != nil {
 		return err
