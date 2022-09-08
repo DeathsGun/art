@@ -1,7 +1,6 @@
 package redmine
 
 import (
-	"fmt"
 	"github.com/deathsgun/art/login"
 	"github.com/deathsgun/art/provider"
 	"github.com/deathsgun/art/utils"
@@ -45,7 +44,7 @@ func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, 
 		return nil, err
 	}
 	if len(entries.TimeEntries) == 0 {
-		return nil, fmt.Errorf("no entries for date %s", startDate)
+		return nil, nil
 	}
 
 	sortedEntries := map[string][]TimeEntry{}

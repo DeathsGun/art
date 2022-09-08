@@ -14,26 +14,28 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-type excelProvider struct {
+type Provider struct {
 }
 
-func (e *excelProvider) Name() string {
+func (e *Provider) Name() string {
 	return "excel"
 }
 
-func (e *excelProvider) ValidateLogin(username string, password string) (string, string, error) {
+func (e *Provider) ValidateLogin(username string, password string) (string, string, error) {
 	return username, password, nil
 }
 
-func (e *excelProvider) NeedsLogin() bool {
+func (e *Provider) NeedsLogin() bool {
 	return false
 }
 
 //go:embed Template.xlsx
 var template []byte
 
-// Export is
-func (e *excelProvider) Export(report *provider.Report, startDate time.Time, outputDir string, printDate bool) error {
+// Export is the export provider for the Template.xlsx which has been hard coded here but can be
+// adjusted, if more parameters are added in the future which control those fields.
+// Until then hard coded it is
+func (e *Provider) Export(report *provider.Report, startDate time.Time, outputDir string, printDate bool) error {
 	if outputDir == "" {
 		return errors.New("output dir required")
 	}
@@ -107,5 +109,5 @@ func (e *excelProvider) Export(report *provider.Report, startDate time.Time, out
 }
 
 func NewExcelProvider() provider.ExportProvider {
-	return &excelProvider{}
+	return &Provider{}
 }

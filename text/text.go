@@ -8,22 +8,22 @@ import (
 	"time"
 )
 
-type textProvider struct {
+type Provider struct {
 }
 
-func (t *textProvider) Name() string {
+func (t *Provider) Name() string {
 	return "text"
 }
 
-func (t *textProvider) ValidateLogin(username string, password string) (string, string, error) {
+func (t *Provider) ValidateLogin(username string, password string) (string, string, error) {
 	return username, password, nil
 }
 
-func (t *textProvider) NeedsLogin() bool {
+func (t *Provider) NeedsLogin() bool {
 	return false
 }
 
-func (t *textProvider) Export(report *provider.Report, startDate time.Time, outputDir string, printDates bool) error {
+func (t *Provider) Export(report *provider.Report, startDate time.Time, outputDir string, printDates bool) error {
 	if outputDir == "" {
 		return errors.New("output dir required")
 	}
@@ -63,5 +63,5 @@ func (t *textProvider) Export(report *provider.Report, startDate time.Time, outp
 }
 
 func NewTextProvider() provider.ExportProvider {
-	return &textProvider{}
+	return &Provider{}
 }

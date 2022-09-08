@@ -60,7 +60,7 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 			return nil, err
 		}
 		if len(entries) > 0 {
-			fmt.Printf("Got %d entries from \n")
+			fmt.Printf("[untis] Got %d entries from %s\n", len(entries), date.Format(time.RFC850))
 		}
 		result = append(result, entries...)
 	}
@@ -112,10 +112,9 @@ func (u *untisImportProvider) getEntriesForDate(un *Untis, date time.Time) ([]*p
 			}
 
 			result = append(result, &provider.Entry{
-				Date:      startDateTime,
-				Text:      message,
-				Category:  provider.SUBJECTS,
-				PrintDate: true,
+				Date:     startDateTime,
+				Text:     message,
+				Category: provider.SUBJECTS,
 			})
 		}
 	}

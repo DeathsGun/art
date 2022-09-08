@@ -17,6 +17,7 @@ import (
 var logins []*Login
 var changed = false
 
+// Initializes the login storage
 func init() {
 	config, err := os.UserConfigDir()
 	if err != nil {

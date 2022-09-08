@@ -34,7 +34,7 @@ func HandleExport(prov string, date string, output string, printDates bool) {
 	}
 
 	dateTime = utils.LerpToPreviousMonday(dateTime)
-	fmt.Printf("Using for %s as start date\n", dateTime.Format("Monday "+time.RFC822))
+	fmt.Printf("Using for %s as start date\n", dateTime.Format("Monday "+time.RFC850))
 
 	if output == "" {
 		output, _ = filepath.Abs(".")
@@ -65,6 +65,10 @@ func HandleExport(prov string, date string, output string, printDates bool) {
 				continue
 			}
 			fmt.Printf("Skipping import provider %s because it errored: %v\n", iprov.Name(), err)
+			continue
+		}
+		if len(entries) == 0 {
+			fmt.Printf("[%s]: Skipping import. Reason: no entries provided\n", iprov.Name())
 			continue
 		}
 		report.Entries = append(report.Entries, entries...)
