@@ -47,7 +47,11 @@ func (r *redmineImportProvider) Import(startDate time.Time) ([]*provider.Entry, 
 	if len(entries.TimeEntries) == 0 {
 		return nil, nil
 	}
-	fmt.Printf("[redmine] Got %d entries from %s-%s\n", len(entries.TimeEntries), startDate.Format(time.RFC850), endDate.Format(time.RFC850))
+	fmt.Printf("[redmine] Got %d entries from %s - %s\n",
+		len(entries.TimeEntries),
+		startDate.Format("02.01.2006"),
+		endDate.Format("02.01.2006"),
+	)
 
 	sortedEntries := map[string][]TimeEntry{}
 	for _, entry := range entries.TimeEntries {
