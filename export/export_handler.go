@@ -5,6 +5,7 @@ import (
 	"github.com/deathsgun/art/provider"
 	"github.com/deathsgun/art/provider/registry"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -21,6 +22,9 @@ func HandleExport(prov string, start string, output string) {
 			println(err.Error())
 			os.Exit(1)
 		}
+	}
+	if output == "" {
+		output, _ = filepath.Abs(".")
 	}
 
 	var exportProvider provider.ExportProvider = nil

@@ -53,6 +53,16 @@ func main() {
 		}
 		export.HandleExport(*exportProvider, *exportStart, *exportOutput)
 		return
+	case "providers":
+		println("Import providers:")
+		for _, importProvider := range registry.ImportProviders {
+			println("\t" + importProvider.Name())
+		}
+		println("Export providers:")
+		for _, exportProvider := range registry.ExportProviders {
+			println("\t" + exportProvider.Name())
+		}
+		return
 	default:
 		fmt.Printf("unknown command \"%s\" for \"art\"\n", command)
 		println()
@@ -64,14 +74,15 @@ func main() {
 func printHelp() {
 	println("Usage: art <command> [flags]\n")
 	println("COMMANDS")
-	println("\tlogin")
-	println("\texport")
+	println("\tlogin - allows you to setup all")
+	println("\texport - collects data from all import providers and exports them using the export provider")
+	println("\tproviders - lists all import and export providers")
 	println("COMMON FLAGS")
-	println("\t--provider")
+	println("\t--provider <name> the provider you want to use for export or login")
 	println("LOGIN FLAGS")
-	println("\t--username")
-	println("\t--password")
+	println("\t--username <user>")
+	println("\t--password <password>")
 	println("EXPORT FLAGS")
-	println("\t--template")
-	println("\t--output")
+	println("\t--start-date (dd.MM.YYYY) the date of a week from which data should be exported")
+	println("\t--output (output directory) the directory where the reports should be exported to (defaults to the current work directory)")
 }
