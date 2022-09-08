@@ -42,5 +42,4 @@ func TestUntis_Details(t *testing.T) {
 	if len(entries) == 0 {
 		t.Fatal("expected some entries")
 	}
-
 }

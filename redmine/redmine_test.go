@@ -1,7 +1,6 @@
 package redmine
 
 import (
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -20,7 +19,9 @@ func PrepareRedmineAPI(t *testing.T) *Redmine {
 
 func TestRedmineLogin(t *testing.T) {
 	redmine := PrepareRedmineAPI(t)
-	fmt.Printf("%+v", redmine.RedmineUser)
+	if redmine.Authorization.RedmineUser == "" {
+		t.Fatal("User is empty so login failed")
+	}
 }
 
 func TestRedmine_GetTimeEntries(t *testing.T) {
@@ -29,19 +30,7 @@ func TestRedmine_GetTimeEntries(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("%+v", timeEntries)
-}
-
-func TestRedmineGetIssues(t *testing.T) {
-	redmine := PrepareRedmineAPI(t)
-	issuesPage1, err := redmine.GetIssues(5, 1)
-	if err != nil {
-		t.Fatal(err)
+	if len(timeEntries.TimeEntries) > 0 {
+		t.Fatal("time entries are empty")
 	}
-	issuesPage2, err := redmine.GetIssues(5, 2)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("%+v", issuesPage1)
-	fmt.Printf("%+v", issuesPage2)
 }
