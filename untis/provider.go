@@ -60,7 +60,7 @@ func (u *untisImportProvider) Import(startDate time.Time) ([]*provider.Entry, er
 			return nil, err
 		}
 		if len(entries) > 0 {
-			fmt.Printf("[untis] Got %d entries from %s\n", len(entries), date.Format(time.RFC850))
+			fmt.Printf("[untis] Got %d entries from %s\n", len(entries), date.Format("02.01.2006"))
 		}
 		result = append(result, entries...)
 	}
