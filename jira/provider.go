@@ -1,4 +1,4 @@
-package redmine
+package jira
 
 import (
 	"context"
@@ -11,11 +11,11 @@ type impl struct {
 }
 
 func (i *impl) Id() string {
-	return "PROVIDER_REDMINE"
+	return "PROVIDER_JIRA"
 }
 
 func (i *impl) Logo() string {
-	return "Redmine_logo.svg"
+	return "logo-gradient-blue-jira.svg"
 }
 
 func (i *impl) Capabilities() []provider.Capability {
@@ -29,7 +29,8 @@ func (i *impl) Capabilities() []provider.Capability {
 }
 
 func (i *impl) Import(ctx context.Context, monday time.Time) ([]report.Entry, error) {
-	return nil, nil
+	//TODO implement me
+	panic("implement me")
 }
 
 func NewProvider() provider.ImportProvider {

@@ -1,23 +1,28 @@
 package provider
 
 import (
-	"errors"
+	"context"
+	"github.com/deathsgun/art/report"
 	"time"
 )
 
-var (
-	ErrNoLoginConfigured = errors.New("no login configured")
+type Capability int
+
+const (
+	Configurable Capability = iota
+	ConfigServer
+	ConfigUsername
+	ConfigPassword
+	TypeImport
+	TypeExport
 )
 
 // Provider has just methods required for both ImportProvider and ExportProvider
 type Provider interface {
-	// Name is the lowercase name of the provider
-	Name() string
-	// ValidateLogin allows the provider to check the credentials and return
-	// tokens if required instead of username's and passwords
-	ValidateLogin(username string, password string) (string, string, error)
-	// NeedsLogin allows the provider specify whether they need a login or not
-	NeedsLogin() bool
+	// Id is the translation key of the provider
+	Id() string
+	Logo() string
+	Capabilities() []Capability
 }
 
 type ImportProvider interface {
@@ -25,12 +30,12 @@ type ImportProvider interface {
 	// Import gives the provider a monday based date which has been set 00:00h,
 	// so they can use this date to import data for the whole week instead of some random
 	// days
-	Import(startDate time.Time) ([]*Entry, error)
+	Import(ctx context.Context, monday time.Time) ([]report.Entry, error)
 }
 
 type ExportProvider interface {
 	Provider
 	// Export receives the Report from export.HandleExport with entries filled from all the
 	// configured ImportProvider
-	Export(report *Report, startDate time.Time, outputDir string, printDates bool) error
+	Export(ctx context.Context, report *report.Report) ([]byte, error)
 }

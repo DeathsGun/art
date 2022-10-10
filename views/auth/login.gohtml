@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ART - Login</title>
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+
+    <style>
+        html, body {
+            height: 95vh;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        main {
+            max-width: 350px;
+            padding: 15px;
+        }
+
+        form > div:focus-within {
+            z-index: 2;
+        }
+
+        input[type="text"] {
+            margin-bottom: 5px;
+        }
+
+        #username {
+            margin-bottom: -1px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        #school {
+            display: none;
+        }
+
+        #account {
+            display: none;
+        }
+
+        #schools {
+            max-height: 30vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .list-group-item {
+            margin: 5px;
+        }
+
+        #switchSchool {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+    </style>
+</head>
+<body class="text-center">
+<main class="w-100 m-auto">
+    <form id="school" action="">
+        <h1 class="h3 mb-3 fw-normal">{{translate .Lang "SELECT_SCHOOL_HEADER"}}</h1>
+        <div class="form-floating">
+            <input type="text" class="form-control" id="schoolSearch" autocomplete="off" placeholder="BWV Ahaus"
+                   onkeyup="search()">
+            <label for="schoolSearch">{{translate .Lang "SCHOOL_SEARCH"}}</label>
+        </div>
+
+        <button id="selectSchool" class="w-100 btn btn-lg btn-primary" type="button" onclick="setSchool()" disabled>
+            {{translate .Lang "SELECT_SCHOOL"}}
+        </button>
+    </form>
+    <form id="account" action="/login?redirect={{.Redirect}}" method="post">
+        <h1 class="h3 mb-3 fw-normal">{{translate .Lang "SIGN_IN_WITH_ACCOUNT"}}</h1>
+        <input id="schoolField" type="hidden" name="school">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="username" name="username" autocomplete="username" placeholder="john.doe">
+            <label for="username">{{translate .Lang "USERNAME"}}</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="password" name="password" autocomplete="current-password"
+                   placeholder="Password">
+            <label for="password">{{translate .Lang "PASSWORD"}}</label>
+        </div>
+
+        <a id="switchSchool" href="#" onclick="resetSchool()">{{translate .Lang "SWITCH_SCHOOL"}}</a>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">
+            {{translate .Lang "SIGN_IN"}}
+        </button>
+    </form>
+    <p class="mt-4 mb-3 text-muted">Made with &hearts; in Germany</p>
+</main>
+
+<script src="/assets/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+<script src="/assets/js/login.js" crossorigin="anonymous"></script>
+</body>
+</html>
