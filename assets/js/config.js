@@ -1,11 +1,18 @@
 let modals = document.querySelectorAll(".modal")
+
 modals.forEach(modal => {
+    let resetButton = document.querySelector(".btn-reset");
+    resetButton.addEventListener("click", async event => {
+        let button = event.target;
+        let providerId = button.getAttribute("data-bs-provider");
+        await resetConfig(providerId);
+    });
     modal.addEventListener('show.bs.modal', async event => {
         let button = event.relatedTarget;
         let providerId = button.getAttribute("data-bs-provider-id");
         await loadConfig(providerId);
     });
-})
+});
 async function loadConfig(name) {
     let resp = await fetch(`/config/${name}`, {
         credentials: "same-origin",
@@ -78,13 +85,38 @@ async function saveConfig(name, conf) {
     let modal = document.getElementById(name);
     if (!resp.ok) {
         let body = modal.querySelector(".modal-body");
+        for (let alert of modal.querySelectorAll("div.alert-danger")) {
+            body.removeChild(alert);
+        }
         let alert = document.createElement("div");
-        alert.classList.add("alert", "alert-danger");
+        alert.classList.add("alert", "alert-danger", "m-2");
         alert.setAttribute("role", "alert");
         alert.innerText = await resp.text();
         body.appendChild(alert);
+        return;
     }
-    modal.hide();
+    new bootstrap.Modal(modal).hide();
     const toast = new bootstrap.Toast(document.getElementById("saveToast"));
     toast.show();
+}
+
+async function resetConfig(providerId) {
+    let resp = await fetch(`/config/${providerId}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+    })
+    let modal = document.getElementById(providerId);
+    if (!resp.ok) {
+        let body = modal.querySelector(".modal-body");
+        for (let alert of modal.querySelectorAll("div.alert-danger")) {
+            body.removeChild(alert);
+        }
+        let alert = document.createElement("div");
+        alert.classList.add("alert", "alert-danger", "m-2");
+        alert.setAttribute("role", "alert");
+        alert.innerText = await resp.text();
+        body.appendChild(alert);
+        return;
+    }
+    window.location.reload();
 }

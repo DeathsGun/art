@@ -8,6 +8,7 @@ import (
 	"github.com/deathsgun/art/untis/dto"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -17,6 +18,7 @@ type IUntisService interface {
 	Logout(ctx context.Context, session *Session) error
 	ValidateLogin(ctx context.Context, session *Session) error
 	SearchSchools(ctx context.Context, query string) ([]School, error)
+	GetCalendarForDay(ctx context.Context, startTime time.Time, endTime time.Time) ([]CalendarEntry, error)
 }
 
 type service struct {
@@ -129,6 +131,41 @@ func (s *service) ValidateLogin(ctx context.Context, session *Session) error {
 		return fmt.Errorf("invalid status code: %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func (s *service) GetCalendarForDay(ctx context.Context, startTime time.Time, endTime time.Time) ([]CalendarEntry, error) {
+	session := ctx.Value("session").(*Session)
+	detailsUrl, err := url.Parse(session.Endpoint + "/api/rest/view/v1/calendar-entry/detail")
+	if err != nil {
+		return nil, err
+	}
+	query := url.Values{
+		"elementId":     []string{fmt.Sprintf("%d", session.PersonId)},
+		"elementType":   []string{fmt.Sprintf("%d", session.PersonType)},
+		"startDateTime": []string{startTime.Format("2006-01-02T15:04:05")},
+		"endDateTime":   []string{endTime.Format("2006-01-02T15:04:05")},
+	}
+	detailsUrl.RawQuery = query.Encode()
+	req, err := http.NewRequest(http.MethodGet, detailsUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", session.Token))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	response := &CalendarResponse{}
+	err = json.NewDecoder(resp.Body).Decode(response)
+	if err != nil {
+		return nil, err
+	}
+	return response.CalendarEntries, nil
 }
 
 func NewService() IUntisService {

@@ -2,9 +2,10 @@ package init
 
 import (
 	"github.com/deathsgun/art/di"
-	"github.com/deathsgun/art/jira"
+	jiraProvider "github.com/deathsgun/art/jira/provider"
 	"github.com/deathsgun/art/provider"
-	"github.com/deathsgun/art/redmine"
+	redmineProvider "github.com/deathsgun/art/redmine/provider"
+	"github.com/deathsgun/art/text"
 	untisProvider "github.com/deathsgun/art/untis/provider"
 	"github.com/rs/zerolog/log"
 )
@@ -16,12 +17,16 @@ func InitializeProvider() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to register untis provider")
 	}
-	err = providerService.RegisterProvider(redmine.NewProvider())
+	err = providerService.RegisterProvider(redmineProvider.NewProvider())
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to register redmine provider")
 	}
-	err = providerService.RegisterProvider(jira.NewProvider())
+	err = providerService.RegisterProvider(jiraProvider.NewProvider())
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to register redmine provider")
+		log.Fatal().Err(err).Msg("Failed to register jira provider")
+	}
+	err = providerService.RegisterProvider(text.NewProvider())
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to register text provider")
 	}
 }

@@ -9,6 +9,8 @@ import (
 	configHttp "github.com/deathsgun/art/config/http"
 	configModel "github.com/deathsgun/art/config/model"
 	"github.com/deathsgun/art/di"
+	"github.com/deathsgun/art/export"
+	exportHttp "github.com/deathsgun/art/export/http"
 	"github.com/deathsgun/art/i18n"
 	"github.com/deathsgun/art/provider"
 	providerInit "github.com/deathsgun/art/provider/init"
@@ -47,12 +49,14 @@ func main() {
 	di.Set[i18n.ITranslationService]("translation", i18n.New())
 	di.Set[config.IConfigService]("configService", config.New())
 	di.Set[provider.IProviderService]("providerService", provider.New())
+	di.Set[export.IExportService]("exportService", export.New())
 
 	providerInit.InitializeProvider()
 
 	authHttp.Initialize(app)
 	untisHttp.Initialize(app)
 	configHttp.Initialize(app)
+	exportHttp.Initialize(app)
 
 	err := app.Listen(":3000")
 	if err != nil {

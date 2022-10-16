@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-func LerpToPreviousMonday(t time.Time) time.Time {
+func LeapToPreviousMonday(t time.Time) time.Time {
 	return t.Add(-time.Second * time.Duration(t.Second())).
 		Add(-time.Minute * time.Duration(t.Minute())).
 		Add(-time.Hour * time.Duration(t.Hour())).

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/deathsgun/art/config"
+	"github.com/deathsgun/art/config/model"
 	"github.com/deathsgun/art/di"
 	"github.com/deathsgun/art/utils"
 	"strings"
@@ -11,18 +12,28 @@ import (
 
 var (
 	ErrProviderAlreadyRegistered = errors.New("provider already registered")
+	ErrProviderNotFound          = errors.New("provider not found")
 )
 
 type IProviderService interface {
 	RegisterProvider(provider Provider) error
 	GetReadyProviders(ctx context.Context) ([]Provider, error)
 	GetProviderWithMissingConfig(ctx context.Context) ([]Provider, error)
-	GetProvider(params string) (Provider, bool)
+	GetProvider(name string) (Provider, bool)
 	GetConfigurableProviders(ctx context.Context) ([]Provider, error)
+	ValidateConfig(ctx context.Context, conf *model.ProviderConfig) error
 }
 
 type service struct {
 	provider []Provider
+}
+
+func (s *service) ValidateConfig(ctx context.Context, conf *model.ProviderConfig) error {
+	prov, ok := s.GetProvider(conf.Provider)
+	if !ok {
+		return ErrProviderNotFound
+	}
+	return prov.ValidateConfig(ctx, conf)
 }
 
 func (s *service) GetProvider(id string) (Provider, bool) {

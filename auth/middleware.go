@@ -2,12 +2,14 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
+	"github.com/deathsgun/art/di"
+	"github.com/deathsgun/art/i18n"
 	"github.com/deathsgun/art/untis"
 	"github.com/gofiber/fiber/v2"
 )
 
-//TODO: Comment in
-/*func New(c *fiber.Ctx) error {
+func New(c *fiber.Ctx) error {
 	rawSession := c.Cookies("session")
 	if rawSession == "" {
 		if c.Accepts("application/json") == "" {
@@ -34,9 +36,12 @@ import (
 	}
 	c.Locals("session", session)
 	c.SetUserContext(context.WithValue(c.UserContext(), "session", session))
-	return c.Next()
-}*/
 
+	c.SetUserContext(context.WithValue(c.UserContext(), i18n.LanguageCtxKey, c.Get("Accept-Language", "en")))
+	return c.Next()
+}
+
+/*
 func New(c *fiber.Ctx) error {
 	session := &untis.Session{
 		Endpoint:   "https://dummy.offline",
@@ -50,3 +55,4 @@ func New(c *fiber.Ctx) error {
 	c.SetUserContext(context.WithValue(c.UserContext(), "session", session))
 	return c.Next()
 }
+*/

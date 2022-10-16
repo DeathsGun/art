@@ -15,7 +15,7 @@
                     <h5 class="modal-title">{{translate .Lang .ProviderId}}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body pb-1">
                     <form id="{{.ProviderId}}-form" class="w-75 m-auto">
                         {{if hasCapability .ProviderId "server"}}
                             {{$input := struct "Lang" .Lang "Text" "SERVER" "ProviderId" .ProviderId "Type" "text" "Placeholder" "example.com" "Id" "server" "Autocomplete" "none"}}
@@ -32,9 +32,13 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-reset"
+                            data-bs-dismiss="modal"
+                            data-bs-provider="{{.ProviderId}}">{{translate .Lang "RESET"}}</button>
                     <button type="button" class="btn btn-secondary"
                             data-bs-dismiss="modal">{{translate .Lang "CANCEL"}}</button>
-                    <button type="submit" class="btn btn-primary" form="{{.ProviderId}}-form">{{translate .Lang "SAVE"}}</button>
+                    <button type="submit" class="btn btn-primary"
+                            form="{{.ProviderId}}-form">{{translate .Lang "SAVE"}}</button>
                 </div>
             </div>
         </div>

@@ -14,9 +14,16 @@ type IConfigService interface {
 	GetConfiguredProviderNames(ctx context.Context) ([]string, error)
 	SaveProviderConfig(ctx context.Context, config *model.ProviderConfig) error
 	GetConfig(ctx context.Context, provider string) (*model.ProviderConfig, error)
+	DeleteConfig(ctx context.Context, provider string) error
 }
 
 type service struct {
+}
+
+func (s *service) DeleteConfig(ctx context.Context, provider string) error {
+	db := di.Instance[*gorm.DB]("database")
+	result := db.Where(&model.ProviderConfig{User: auth.Session(ctx).Id(), Provider: provider}).Delete(&model.ProviderConfig{})
+	return result.Error
 }
 
 func (s *service) GetConfiguredProviderNames(ctx context.Context) ([]string, error) {

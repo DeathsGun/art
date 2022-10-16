@@ -18,10 +18,15 @@
   "CONFIGURE_PROVIDER": "Konfigurieren",
   "SAVE": "Speichern",
   "CANCEL": "Abbrechen",
+  "RESET": "Zurücksetzen",
   "PROVIDER_UNTIS": "Untis",
   "PROVIDER_UNTIS_DESCRIPTION": "Eine Stundenplan-Software welche an vielen Schulen benutzt wird.",
   "PROVIDER_REDMINE": "Redmine",
   "PROVIDER_REDMINE_DESCRIPTION": "Ticket System",
   "PROVIDER_JIRA": "Jira",
-  "PROVIDER_JIRA_DESCRIPTION": "Ticket System"
+  "PROVIDER_JIRA_DESCRIPTION": "Ticket System",
+  "PROVIDER_TEXT": "Text",
+  "PROVIDER_TEXT_DESCRIPTION": "Simpler export von Berichten nach TXT-Dateien",
+  "UNTIS_ENTRY_NOT_FILLED": "Lehrer hat noch nicht eingetragen !!BITTE FÜLLEN!!",
+  "UNTIS_LESSON_CANCELLED": "Entfall"
 }

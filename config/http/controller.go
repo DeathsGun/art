@@ -16,6 +16,7 @@ func Initialize(app *fiber.App) {
 	app.Get("/config", auth.New, HandleConfigView)
 	app.Get("/config/:provider", auth.New, HandleGetConfig)
 	app.Post("/config/:provider", auth.New, HandleSaveConfig)
+	app.Delete("/config/:provider", auth.New, HandleDeleteConfig)
 }
 
 func HandleConfigView(c *fiber.Ctx) error {
@@ -85,7 +86,28 @@ func HandleSaveConfig(c *fiber.Ctx) error {
 	configService := di.Instance[config.IConfigService]("configService")
 	configModel := dto.ToModel(conf)
 	configModel.Provider = strings.ToUpper(prov)
+
+	providerService := di.Instance[provider.IProviderService]("providerService")
+	err = providerService.ValidateConfig(c.UserContext(), configModel)
+
+	if err != nil {
+		return err
+	}
+
 	if err = configService.SaveProviderConfig(c.UserContext(), configModel); err != nil {
+		return err
+	}
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func HandleDeleteConfig(c *fiber.Ctx) error {
+	prov := c.Params("provider")
+	if prov == "" {
+		return fiber.ErrBadRequest
+	}
+	configService := di.Instance[config.IConfigService]("configService")
+	err := configService.DeleteConfig(c.UserContext(), prov)
+	if err != nil {
 		return err
 	}
 	return c.SendStatus(fiber.StatusNoContent)
