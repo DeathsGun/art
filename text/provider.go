@@ -12,6 +12,10 @@ import (
 type impl struct {
 }
 
+func (i *impl) ContentType() string {
+	return "text/plain; charset=utf-8"
+}
+
 func (i *impl) GetStartDate(_ context.Context) (time.Time, error) {
 	return time.Time{}, nil
 }

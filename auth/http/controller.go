@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"github.com/deathsgun/art/auth"
 	"github.com/deathsgun/art/auth/http/dto"
 	"github.com/deathsgun/art/di"
@@ -35,6 +36,7 @@ func HandleLogin(c *fiber.Ctx) error {
 		}
 	}
 	if school == nil {
+		fmt.Printf("%+v", loginRequest)
 		return errors.New("school not found")
 	}
 

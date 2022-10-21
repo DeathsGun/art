@@ -12,9 +12,31 @@ import (
 
 type IExportService interface {
 	Export(ctx context.Context, prov string, date time.Time) ([]byte, error)
+	GetContentType(ctx context.Context, prov string) (string, error)
 }
 
 type service struct {
+}
+
+func (s *service) GetContentType(ctx context.Context, prov string) (string, error) {
+	providerService := di.Instance[provider.IProviderService]("providerService")
+	providers, err := providerService.GetReadyProviders(ctx)
+	if err != nil {
+		return "", err
+	}
+	var export provider.ExportProvider
+	for _, p := range providers {
+		switch v := p.(type) {
+		case provider.ExportProvider:
+			if v.Id() == prov {
+				export = v
+			}
+		}
+	}
+	if export == nil {
+		return "", provider.ErrProviderNotFound
+	}
+	return export.ContentType(), nil
 }
 
 func (s *service) Export(ctx context.Context, prov string, date time.Time) ([]byte, error) {

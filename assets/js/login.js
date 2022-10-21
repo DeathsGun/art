@@ -7,6 +7,10 @@ if (localStorage.getItem("school")) {
     document.getElementById("account").style.display = "none";
 }
 
+document.getElementById("password").addEventListener("change", () => {
+    document.getElementById("schoolField").value = localStorage.getItem("school");
+})
+
 async function search() {
     let query = document.getElementById("schoolSearch").value;
     if (query.length < 3) {

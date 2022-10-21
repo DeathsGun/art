@@ -1,11 +1,13 @@
 package http
 
 import (
+	"fmt"
 	"github.com/deathsgun/art/auth"
 	"github.com/deathsgun/art/di"
 	"github.com/deathsgun/art/export"
 	"github.com/deathsgun/art/export/http/dto"
 	"github.com/deathsgun/art/provider"
+	"github.com/deathsgun/art/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -46,5 +48,11 @@ func HandleExport(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	contentType, err := exportService.GetContentType(c.UserContext(), requestDto.Provider)
+	if err != nil {
+		return err
+	}
+	c.Set("Content-Type", contentType)
+	c.Set("File-Name", fmt.Sprintf("%s", utils.LeapToPreviousMonday(requestDto.Date).Format("2006-01-02")))
 	return c.Status(fiber.StatusOK).Send(bytes)
 }

@@ -40,4 +40,5 @@ type ExportProvider interface {
 	// configured ImportProvider
 	Export(ctx context.Context, report *report.Report) ([]byte, error)
 	GetStartDate(ctx context.Context) (time.Time, error)
+	ContentType() string
 }
