@@ -17,7 +17,7 @@ func (i *impl) ContentType() string {
 }
 
 func (i *impl) GetStartDate(_ context.Context) (time.Time, error) {
-	return time.Time{}, nil
+	return time.Now(), nil
 }
 
 func (i *impl) Id() string {

@@ -2,6 +2,7 @@ package init
 
 import (
 	"github.com/deathsgun/art/di"
+	ihkProvider "github.com/deathsgun/art/ihk/provider"
 	jiraProvider "github.com/deathsgun/art/jira/provider"
 	"github.com/deathsgun/art/provider"
 	redmineProvider "github.com/deathsgun/art/redmine/provider"
@@ -28,5 +29,9 @@ func InitializeProvider() {
 	err = providerService.RegisterProvider(text.NewProvider())
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to register text provider")
+	}
+	err = providerService.RegisterProvider(ihkProvider.NewProvider())
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to register ihk provider")
 	}
 }

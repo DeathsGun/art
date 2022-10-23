@@ -12,6 +12,7 @@ import (
 	"github.com/deathsgun/art/export"
 	exportHttp "github.com/deathsgun/art/export/http"
 	"github.com/deathsgun/art/i18n"
+	"github.com/deathsgun/art/ihk"
 	"github.com/deathsgun/art/provider"
 	providerInit "github.com/deathsgun/art/provider/init"
 	"github.com/deathsgun/art/untis"
@@ -50,6 +51,7 @@ func main() {
 	di.Set[config.IConfigService]("configService", config.New())
 	di.Set[provider.IProviderService]("providerService", provider.New())
 	di.Set[export.IExportService]("exportService", export.New())
+	di.Set[ihk.IIHKService]("ihkService", ihk.New())
 
 	providerInit.InitializeProvider()
 

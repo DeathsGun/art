@@ -8,6 +8,7 @@ type ProviderConfig struct {
 	Password string `json:"password"`
 }
 
+// ToDto TODO don't send password LOL
 func ToDto(m *model.ProviderConfig) *ProviderConfig {
 	return &ProviderConfig{
 		Server:   m.Server,

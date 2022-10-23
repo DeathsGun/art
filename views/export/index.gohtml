@@ -17,10 +17,6 @@
 <div class="w-50 m-auto mt-5">
     <form id="export">
         <div class="form-floating m-2">
-            <input type="date" class="form-control" id="date" name="date" required>
-            <label for="date">{{translate .Lang "DATE"}}</label>
-        </div>
-        <div class="form-floating m-2">
             <select class="form-select form-control" aria-label="{{translate .Lang "PROVIDER"}}" id="provider"
                     name="provider" required>
                 {{$lang := .Lang}}
@@ -29,6 +25,10 @@
                 {{end}}
             </select>
             <label for="provider">{{translate .Lang "PROVIDER"}}</label>
+        </div>
+        <div class="form-floating m-2">
+            <input type="date" class="form-control" id="date" name="date" required>
+            <label for="date">{{translate .Lang "DATE"}}</label>
         </div>
         <div class="form-floating m-2 d-none">
             <textarea id="previewContent" class="w-100 form-control" readonly></textarea>

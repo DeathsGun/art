@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"fmt"
 	"github.com/deathsgun/art/auth"
 	"github.com/deathsgun/art/di"
@@ -14,6 +15,7 @@ import (
 func Initialize(app *fiber.App) {
 	app.Get("/export", auth.New, HandleExportView)
 	app.Post("/export", auth.New, HandleExport)
+	app.Get("/export/start-date/:provider", auth.New, HandleStartDate)
 }
 
 func HandleExportView(c *fiber.Ctx) error {
@@ -48,6 +50,9 @@ func HandleExport(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	if len(bytes) == 0 {
+		return c.SendStatus(fiber.StatusNoContent)
+	}
 	contentType, err := exportService.GetContentType(c.UserContext(), requestDto.Provider)
 	if err != nil {
 		return err
@@ -55,4 +60,26 @@ func HandleExport(c *fiber.Ctx) error {
 	c.Set("Content-Type", contentType)
 	c.Set("File-Name", fmt.Sprintf("%s", utils.LeapToPreviousMonday(requestDto.Date).Format("2006-01-02")))
 	return c.Status(fiber.StatusOK).Send(bytes)
+}
+
+func HandleStartDate(c *fiber.Ctx) error {
+	if c.Params("provider") == "" {
+		return fiber.ErrBadRequest
+	}
+	providerService := di.Instance[provider.IProviderService]("providerService")
+	prov, ok := providerService.GetProvider(c.Params("provider"))
+	if !ok {
+		return fiber.ErrNotFound
+	}
+	switch v := prov.(type) {
+	case provider.ImportProvider:
+		return fiber.ErrBadRequest
+	case provider.ExportProvider:
+		date, err := v.GetStartDate(c.UserContext())
+		if err != nil {
+			return err
+		}
+		return c.Status(fiber.StatusOK).JSON(&dto.DateResponse{Date: date})
+	}
+	return errors.New("unknown provider type") // Should be impossible
 }
