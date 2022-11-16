@@ -13,8 +13,6 @@ import (
 var key = []byte(os.Getenv("CRYPT_KEY"))
 
 type ICryptService interface {
-	EncryptString(s string) (string, error)
-	DecryptString(s string) (string, error)
 	Encrypt(data []byte) ([]byte, error)
 	Decrypt(data []byte) ([]byte, error)
 }
@@ -23,15 +21,11 @@ type service struct {
 }
 
 func (c *service) EncryptString(s string) (string, error) {
-	cipherData, err := base64.RawStdEncoding.DecodeString(s)
+	cipherData, err := c.Encrypt([]byte(base64.RawStdEncoding.EncodeToString([]byte(s))))
 	if err != nil {
 		return "", err
 	}
-	data, err := c.Encrypt(cipherData)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
+	return string(cipherData), nil
 }
 
 func (c *service) DecryptString(s string) (string, error) {

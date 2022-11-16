@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"github.com/deathsgun/art/auth"
 	"github.com/deathsgun/art/config/model"
@@ -56,11 +57,11 @@ func (s *service) GetConfigsForUser(ctx context.Context) ([]model.ProviderConfig
 func (s *service) SaveProviderConfig(ctx context.Context, config *model.ProviderConfig) error {
 	db := di.Instance[*gorm.DB]("database")
 
-	pw, err := di.Instance[crypt.ICryptService]("crypt").EncryptString(config.Password)
+	pw, err := di.Instance[crypt.ICryptService]("crypt").Encrypt([]byte(config.Password))
 	if err != nil {
 		return err
 	}
-	config.Password = pw
+	config.Password = base64.StdEncoding.EncodeToString(pw)
 	config.User = auth.Session(ctx).Id()
 	result := db.First(&model.ProviderConfig{}, &model.ProviderConfig{User: auth.Session(ctx).Id(), Provider: config.Provider})
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -78,11 +79,15 @@ func (s *service) GetConfig(ctx context.Context, provider string) (*model.Provid
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	pw, err := di.Instance[crypt.ICryptService]("crypt").DecryptString(config.Password)
+	pw, err := di.Instance[crypt.ICryptService]("crypt").Decrypt([]byte(config.Password))
 	if err != nil {
 		return nil, err
 	}
-	config.Password = pw
+	_, err = base64.StdEncoding.Decode(pw, pw)
+	if err != nil {
+		return nil, err
+	}
+	config.Password = string(pw)
 	return config, nil
 }
 
