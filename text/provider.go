@@ -40,7 +40,7 @@ func (i *impl) ValidateConfig(_ context.Context, _ *model.ProviderConfig) error 
 
 func (i *impl) Export(ctx context.Context, report *report.Report) ([]byte, error) {
 	buffer := &bytes.Buffer{}
-	buffers, err := report.Format(true)
+	buffers, err := report.Format(ctx, true)
 	if err != nil {
 		return nil, err
 	}

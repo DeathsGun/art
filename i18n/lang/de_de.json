@@ -30,5 +30,20 @@
   "PROVIDER_IHK": "IHK Portal",
   "PROVIDER_IHK_DESCRIPTION": "Export direkt in das IHK-Online-Portal. Kompatibel mit allen Portalen die tribosBB einsetzen.",
   "UNTIS_ENTRY_NOT_FILLED": "Lehrer hat noch nicht eingetragen !!BITTE FÜLLEN!!",
-  "UNTIS_LESSON_CANCELLED": "Entfall"
+  "UNTIS_LESSON_CANCELLED": "Entfall",
+  "EXPORT": "Exportieren",
+  "CONFIG": "Konfiguration",
+  "PREVIEW": "Vorschau",
+  "DATE": "Datum",
+  "PROVIDER": "Exportsystem",
+  "DEPARTMENT": "Abteilung",
+  "INSTRUCTOR_EMAIL": "E-Mail des Ausbilders",
+  "CONFIG_SAVED": "Konfiguration gespeichert!",
+  "MONDAY": "Montag",
+  "TUESDAY": "Dienstag",
+  "WEDNESDAY": "Mittwoch",
+  "THURSDAY": "Donnerstag",
+  "FRIDAY": "Freitag",
+  "SATURDAY": "Samstag",
+  "SUNDAY": "Sonntag"
 }

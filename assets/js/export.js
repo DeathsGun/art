@@ -21,7 +21,13 @@ form.addEventListener("submit", async (ev) => {
         body: JSON.stringify(body)
     });
     if (!resp.ok) {
-        console.error(await resp.text());
+        let message = document.getElementById("errorMessage");
+        message.innerText = await resp.text();
+        let errorModal = new bootstrap.Modal("#error");
+        errorModal.show(undefined);
+        return;
+    }
+    if (resp.status === 204) {
         return;
     }
     let url = window.URL.createObjectURL(await resp.blob());
@@ -46,6 +52,13 @@ previewButton.addEventListener("click", async () => {
         credentials: "same-origin",
         body: JSON.stringify(body)
     });
+    if (!resp.ok) {
+        let message = document.getElementById("errorMessage");
+        message.innerText = await resp.text();
+        let errorModal = new bootstrap.Modal("#error");
+        errorModal.show(undefined);
+        return;
+    }
     let content = document.getElementById("previewContent");
     content.parentElement.classList.remove("d-none");
     content.value = await resp.text();
@@ -53,8 +66,15 @@ previewButton.addEventListener("click", async () => {
 
 let provider = document.getElementById("provider");
 provider.addEventListener("change", async () => {
-    let startDate = await getStartDate(document.getElementById("provider").value);
-    document.getElementById("date").value = startDate.toISOString().split("T")[0];
+    let prov = document.getElementById("provider").value;
+    let date = document.getElementById("date");
+    if (prov === "PROVIDER_IHK") {
+        date.setAttribute("disabled", "true");
+    } else {
+        date.removeAttribute("disabled");
+    }
+    let startDate = await getStartDate(prov);
+    date.value = startDate.toISOString().split("T")[0];
 });
 
 async function getStartDate(prov) {

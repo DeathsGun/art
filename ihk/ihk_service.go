@@ -172,11 +172,7 @@ func (s *service) SaveReport(ctx context.Context, server string, report *Report,
 		_ = Body.Close()
 	}(resp.Body)
 
-	if resp.StatusCode != http.StatusFound { // Redirect means success in this case
-		return s.parseError(resp) // IDK what error could prevent the cancel action
-	}
-
-	return nil
+	return s.parseError(resp)
 }
 
 func (s *service) CancelReport(ctx context.Context, server string, report *Report, token string) error {
@@ -367,9 +363,12 @@ func (s *service) parseError(resp *http.Response) error {
 	}
 	errorDiv := doc.Find(".error").First()
 	if errorDiv == nil {
+		if resp.StatusCode == http.StatusOK {
+			return nil
+		}
 		return fmt.Errorf("invalid status code: %d", resp.StatusCode)
 	}
-	return errors.New(strings.ReplaceAll(errorDiv.Text(), "<br>", ""))
+	return errors.New(errorDiv.Text())
 }
 
 func (s *service) authenticateRequest(req *http.Request, server string, cookie string) *http.Request {

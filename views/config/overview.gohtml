@@ -24,110 +24,111 @@
         }
     </style>
 </head>
-<body class="m-4">
-
-{{$lang := .Lang}}
-{{$isImportProvider := .IsImportProvider}}
-{{if .UnpreparedProviders}}
-    <div class="container mb-2">
-        <h2>{{translate .Lang "CONFIG_PROVIDER_CONFIGURABLE"}}</h2>
-        <div class="d-flex flex-row justify-content-start" style="flex-flow: wrap">
-            {{range .UnpreparedProviders}}
-                <div class="card m-2">
-                    <div class="row">
-                        <div class="col-md-4 d-flex align-items-center justify-content-start">
-                            <img class="d-none d-md-block w-100 logo" src="/assets/images/{{.Logo}}"
-                                 alt="{{translate $lang .Id}} Logo">
-                        </div>
-                        <div class="card-body col-md-8">
-                            <div class="m-2">
-                                <h5 class="card-title">
-                                    {{translate $lang .Id}}
-                                    {{if call $isImportProvider . }}
-                                        <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_IMPORT"}}</span>
-                                    {{else}}
-                                        <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_EXPORT"}}</span>
-                                    {{end}}
-                                </h5>
-                                <p class="card-text">{{translate $lang (print .Id "_DESCRIPTION")}}</p>
-                                <div class="text-end">
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#{{.Id}}" data-bs-provider-id="{{.Id}}">
-                                        {{translate $lang "CONFIGURE_PROVIDER"}}
-                                    </button>
-                                </div>
+<body>
+{{template "navbar" struct "Lang" .Lang "Site" "config"}}
+<div class="m-4">
+    {{$lang := .Lang}}
+    {{$isImportProvider := .IsImportProvider}}
+    {{if .UnpreparedProviders}}
+        <div class="container mb-2">
+            <h2>{{translate .Lang "CONFIG_PROVIDER_CONFIGURABLE"}}</h2>
+            <div class="d-flex flex-row justify-content-start" style="flex-flow: wrap">
+                {{range .UnpreparedProviders}}
+                    <div class="card m-2">
+                        <div class="row">
+                            <div class="col-md-4 d-flex align-items-center justify-content-start">
+                                <img class="d-none d-md-block w-100 logo" src="/assets/images/{{.Logo}}"
+                                     alt="{{translate $lang .Id}} Logo">
                             </div>
-                        </div>
-                    </div>
-                </div>
-            {{end}}
-        </div>
-    </div>
-{{end}}
-{{if .ReadyProviders}}
-    <div class="container">
-        <h2>{{translate .Lang "CONFIG_PROVIDER_READY"}}</h2>
-        <div class="d-flex flex-row justify-content-start" style="flex-flow: wrap">
-            {{range .ReadyProviders}}
-                <div class="card m-2">
-                    <div class="row">
-                        <div class="col-md-4 d-flex align-items-center justify-content-start">
-                            <img class="d-none d-md-block w-100 logo" src="/assets/images/{{.Logo}}"
-                                 alt="{{translate $lang .Id}} Logo">
-                        </div>
-                        <div class="card-body col-md-8">
-                            <div class="m-2">
-                                <h5 class="card-title">
-                                    {{translate $lang .Id}}
-                                    {{if call $isImportProvider . }}
-                                        <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_IMPORT"}}</span>
-                                    {{else}}
-                                        <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_EXPORT"}}</span>
-                                    {{end}}
-                                </h5>
-                                <p class="card-text">{{translate $lang (print .Id "_DESCRIPTION")}}</p>
-                                {{if hasCapability .Id "configurable"}}
+                            <div class="card-body col-md-8">
+                                <div class="m-2">
+                                    <h5 class="card-title">
+                                        {{translate $lang .Id}}
+                                        {{if call $isImportProvider . }}
+                                            <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_IMPORT"}}</span>
+                                        {{else}}
+                                            <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_EXPORT"}}</span>
+                                        {{end}}
+                                    </h5>
+                                    <p class="card-text">{{translate $lang (print .Id "_DESCRIPTION")}}</p>
                                     <div class="text-end">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#{{.Id}}" data-bs-provider-id="{{.Id}}">
                                             {{translate $lang "CONFIGURE_PROVIDER"}}
                                         </button>
                                     </div>
-                                {{end}}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                {{end}}
+            </div>
+        </div>
+    {{end}}
+    {{if .ReadyProviders}}
+        <div class="container">
+            <h2>{{translate .Lang "CONFIG_PROVIDER_READY"}}</h2>
+            <div class="d-flex flex-row justify-content-start" style="flex-flow: wrap">
+                {{range .ReadyProviders}}
+                    <div class="card m-2">
+                        <div class="row">
+                            <div class="col-md-4 d-flex align-items-center justify-content-start">
+                                <img class="d-none d-md-block w-100 logo" src="/assets/images/{{.Logo}}"
+                                     alt="{{translate $lang .Id}} Logo">
+                            </div>
+                            <div class="card-body col-md-8">
+                                <div class="m-2">
+                                    <h5 class="card-title">
+                                        {{translate $lang .Id}}
+                                        {{if call $isImportProvider . }}
+                                            <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_IMPORT"}}</span>
+                                        {{else}}
+                                            <span class="badge rounded-pill bg-secondary">{{translate $lang "PROVIDER_EXPORT"}}</span>
+                                        {{end}}
+                                    </h5>
+                                    <p class="card-text">{{translate $lang (print .Id "_DESCRIPTION")}}</p>
+                                    {{if hasCapability .Id "configurable"}}
+                                        <div class="text-end">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#{{.Id}}" data-bs-provider-id="{{.Id}}">
+                                                {{translate $lang "CONFIGURE_PROVIDER"}}
+                                            </button>
+                                        </div>
+                                    {{end}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+    {{end}}
+
+    {{if .ConfigurableProviders}}
+        <div class="configurations">
+            {{range .ConfigurableProviders}}
+                {{$provider := struct "Lang" $lang "ProviderId" .Id "HasCapability"}}
+                {{template "provider-config" $provider}}
             {{end}}
         </div>
-    </div>
-{{end}}
+    {{end}}
+    <script src="/assets/js/config.js"></script>
 
-{{if .ConfigurableProviders}}
-    <div class="configurations">
-        {{range .ConfigurableProviders}}
-            {{$provider := struct "Lang" $lang "ProviderId" .Id "HasCapability"}}
-            {{template "provider-config" $provider}}
-        {{end}}
-    </div>
-{{end}}
-<script src="/assets/js/config.js"></script>
-
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="saveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <svg class="rounded me-2">
-                <rect width="100%" height="100%" fill="#007aff"></rect>
-            </svg>
-            <strong class="me-auto">ART</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            {{translate .Lang "CONFIG_SAVED"}}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="saveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <svg class="rounded me-2">
+                    <rect width="1rem" height="1rem" fill="#007aff"></rect>
+                </svg>
+                <strong class="me-auto">ART</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{translate .Lang "CONFIG_SAVED"}}
+            </div>
         </div>
     </div>
 </div>
-
 <script src="/assets/js/bootstrap.bundle.min.js"
         integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
         crossorigin="anonymous"></script>

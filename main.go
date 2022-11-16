@@ -8,6 +8,7 @@ import (
 	"github.com/deathsgun/art/config"
 	configHttp "github.com/deathsgun/art/config/http"
 	configModel "github.com/deathsgun/art/config/model"
+	"github.com/deathsgun/art/crypt"
 	"github.com/deathsgun/art/di"
 	"github.com/deathsgun/art/export"
 	exportHttp "github.com/deathsgun/art/export/http"
@@ -46,8 +47,9 @@ func main() {
 
 	setupDatabase()
 
+	di.Set[crypt.ICryptService]("crypt", crypt.New())
 	di.Set[untis.IUntisService]("untis", untis.NewService())
-	di.Set[i18n.ITranslationService]("translation", i18n.New())
+	di.Set[i18n.ITranslationService]("i18n", i18n.New())
 	di.Set[config.IConfigService]("configService", config.New())
 	di.Set[provider.IProviderService]("providerService", provider.New())
 	di.Set[export.IExportService]("exportService", export.New())
@@ -78,7 +80,7 @@ func setupEngine() *html.Engine {
 		engine.Debug(true)
 	}
 	engine.AddFunc("translate", func(acceptHeader string, id string, args ...any) string {
-		translationService := di.Instance[i18n.ITranslationService]("translation")
+		translationService := di.Instance[i18n.ITranslationService]("i18n")
 		return translationService.Translate(context.WithValue(context.Background(), i18n.LanguageCtxKey, acceptHeader), id, args)
 	})
 	engine.AddFunc("contains", func(slice []any, v any) bool {
@@ -124,6 +126,12 @@ func setupEngine() *html.Engine {
 			c = provider.ConfigServer
 		case "password":
 			c = provider.ConfigPassword
+		case "department":
+			c = provider.ConfigDepartment
+		case "instructor-email":
+			c = provider.ConfigInstructorEmail
+		case "send-directly":
+			c = provider.ConfigSendDirectly
 		case "import":
 			c = provider.TypeImport
 		case "export":

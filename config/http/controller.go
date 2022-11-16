@@ -86,6 +86,13 @@ func HandleSaveConfig(c *fiber.Ctx) error {
 	configService := di.Instance[config.IConfigService]("configService")
 	configModel := dto.ToModel(conf)
 	configModel.Provider = strings.ToUpper(prov)
+	if configModel.Password == "" {
+		savedConfig, err := configService.GetConfig(c.UserContext(), configModel.Provider)
+		if err != nil {
+			return err
+		}
+		configModel.Password = savedConfig.Password
+	}
 
 	providerService := di.Instance[provider.IProviderService]("providerService")
 	err = providerService.ValidateConfig(c.UserContext(), configModel)

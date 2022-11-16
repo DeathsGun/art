@@ -29,6 +29,14 @@
                             {{$input := struct "Lang" .Lang "Text" "PASSWORD" "ProviderId" .ProviderId "Type" "password" "Placeholder" "password" "Id" "password" "Autocomplete" "password"}}
                             {{template "provider-input" $input}}
                         {{end}}
+                        {{if hasCapability .ProviderId "department"}}
+                            {{$input := struct "Lang" .Lang "Text" "DEPARTMENT" "ProviderId" .ProviderId "Type" "text" "Placeholder" "Example" "Id" "department" "Autocomplete" "none"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
+                        {{if hasCapability .ProviderId "instructor-email"}}
+                            {{$input := struct "Lang" .Lang "Text" "INSTRUCTOR_EMAIL" "ProviderId" .ProviderId "Type" "email" "Placeholder" "john.doe@example.com" "Id" "instructor" "Autocomplete" "none"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
                     </form>
                 </div>
                 <div class="modal-footer">

@@ -89,7 +89,7 @@ func (u *impl) getEntriesForDate(ctx context.Context, date time.Time) ([]report.
 			if err != nil {
 				return nil, err
 			}
-			translationService := di.Instance[i18n.ITranslationService]("translation")
+			translationService := di.Instance[i18n.ITranslationService]("i18n")
 			message := translationService.Translate(ctx, "UNTIS_ENTRY_NOT_FILLED")
 			if entry.Status == "CANCELLED" && len(sameTimes) == 2 {
 				continue

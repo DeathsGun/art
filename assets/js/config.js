@@ -32,7 +32,7 @@ async function loadConfig(name) {
         conf = {
             server: "",
             username: "",
-            password: ""
+            password: "",
         }
     } else {
         conf = await resp.json();
@@ -52,6 +52,15 @@ async function loadConfig(name) {
     if (password) {
         password.value = conf["password"];
     }
+    console.log(conf);
+    let department = document.querySelector(`#${name}department`);
+    if (department) {
+        department.value = conf["department"];
+    }
+    let instructor = document.querySelector(`#${name}instructor`);
+    if (instructor) {
+        instructor.value = conf["instructor"];
+    }
     let form = document.getElementById(`${name}-form`);
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -68,6 +77,12 @@ async function loadConfig(name) {
         }
         if (password) {
             conf["password"] = password.value;
+        }
+        if (department) {
+            conf["department"] = department.value;
+        }
+        if (instructor) {
+            conf["instructor"] = instructor.value;
         }
         await saveConfig(name, conf);
     });
@@ -95,9 +110,9 @@ async function saveConfig(name, conf) {
         body.appendChild(alert);
         return;
     }
-    new bootstrap.Modal(modal).hide();
     const toast = new bootstrap.Toast(document.getElementById("saveToast"));
     toast.show();
+    modal.querySelector(".btn-close").click();
 }
 
 async function resetConfig(providerId) {

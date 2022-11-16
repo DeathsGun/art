@@ -16,6 +16,9 @@ func Initialize(app *fiber.App) {
 	app.Get("/export", auth.New, HandleExportView)
 	app.Post("/export", auth.New, HandleExport)
 	app.Get("/export/start-date/:provider", auth.New, HandleStartDate)
+	app.All("/", func(c *fiber.Ctx) error {
+		return c.Redirect("/export", fiber.StatusTemporaryRedirect)
+	})
 }
 
 func HandleExportView(c *fiber.Ctx) error {
@@ -48,6 +51,9 @@ func HandleExport(c *fiber.Ctx) error {
 	exportService := di.Instance[export.IExportService]("exportService")
 	bytes, err := exportService.Export(c.UserContext(), requestDto.Provider, requestDto.Date)
 	if err != nil {
+		if errors.Is(err, export.ErrNoImportProviderEntries) {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
 		return err
 	}
 	if len(bytes) == 0 {

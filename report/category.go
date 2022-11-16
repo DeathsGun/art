@@ -15,7 +15,7 @@ const (
 )
 
 func (c Category) Text(ctx context.Context) string {
-	service := di.Instance[i18n.ITranslationService]("translation")
+	service := di.Instance[i18n.ITranslationService]("i18n")
 	switch c {
 	case Activity:
 		return service.Translate(ctx, "CATEGORY_ACTIVITY")

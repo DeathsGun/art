@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+var (
+	ErrNoImportProviderEntries = errors.New("got no entries from import provider")
+)
+
 type IExportService interface {
 	Export(ctx context.Context, prov string, date time.Time) ([]byte, error)
 	GetContentType(ctx context.Context, prov string) (string, error)
@@ -77,7 +81,7 @@ func (s *service) Export(ctx context.Context, prov string, date time.Time) ([]by
 		rep.Entries = append(rep.Entries, entries...)
 	}
 	if len(rep.Entries) == 0 {
-		return nil, errors.New("got no entries from import provider")
+		return nil, ErrNoImportProviderEntries
 	}
 	return export.Export(ctx, rep)
 }

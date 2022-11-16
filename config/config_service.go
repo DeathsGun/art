@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/deathsgun/art/auth"
 	"github.com/deathsgun/art/config/model"
+	"github.com/deathsgun/art/crypt"
 	"github.com/deathsgun/art/di"
 	"gorm.io/gorm"
 )
@@ -55,6 +56,11 @@ func (s *service) GetConfigsForUser(ctx context.Context) ([]model.ProviderConfig
 func (s *service) SaveProviderConfig(ctx context.Context, config *model.ProviderConfig) error {
 	db := di.Instance[*gorm.DB]("database")
 
+	pw, err := di.Instance[crypt.ICryptService]("crypt").EncryptString(config.Password)
+	if err != nil {
+		return err
+	}
+	config.Password = pw
 	config.User = auth.Session(ctx).Id()
 	result := db.First(&model.ProviderConfig{}, &model.ProviderConfig{User: auth.Session(ctx).Id(), Provider: config.Provider})
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -72,6 +78,11 @@ func (s *service) GetConfig(ctx context.Context, provider string) (*model.Provid
 	if result.Error != nil {
 		return nil, result.Error
 	}
+	pw, err := di.Instance[crypt.ICryptService]("crypt").DecryptString(config.Password)
+	if err != nil {
+		return nil, err
+	}
+	config.Password = pw
 	return config, nil
 }
 

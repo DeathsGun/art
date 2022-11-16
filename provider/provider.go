@@ -14,6 +14,7 @@ const (
 	ConfigServer
 	ConfigUsername
 	ConfigPassword
+	ConfigDepartment
 	ConfigInstructorEmail
 	ConfigSendDirectly
 	TypeImport

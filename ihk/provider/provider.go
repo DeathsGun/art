@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"github.com/deathsgun/art/config"
 	"github.com/deathsgun/art/config/model"
 	"github.com/deathsgun/art/di"
@@ -30,6 +31,7 @@ func (i *impl) Capabilities() []provider.Capability {
 		provider.ConfigServer,
 		provider.ConfigUsername,
 		provider.ConfigPassword,
+		provider.ConfigDepartment,
 		provider.ConfigInstructorEmail,
 		provider.ConfigSendDirectly,
 	}
@@ -51,6 +53,12 @@ func (i *impl) Export(ctx context.Context, rep *report.Report) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if conf.InstructorEmail == "" {
+		return nil, errors.New("INSTRUCTOR_EMAIL_EMPTY")
+	}
+	if conf.Department == "" {
+		return nil, errors.New("DEPARTMENT_EMPTY")
+	}
 
 	tokens, err := ihkService.Login(ctx, conf.Server, conf.Username, conf.Password)
 	if err != nil {
@@ -66,7 +74,7 @@ func (i *impl) Export(ctx context.Context, rep *report.Report) ([]byte, error) {
 		return nil, err
 	}
 
-	entries, err := rep.Format(true)
+	entries, err := rep.Format(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -82,12 +90,7 @@ func (i *impl) Export(ctx context.Context, rep *report.Report) ([]byte, error) {
 		}
 	}
 
-	err = ihkService.SaveReport(ctx, conf.Server, ihkReport, tokens)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
+	return nil, ihkService.SaveReport(ctx, conf.Server, ihkReport, tokens)
 }
 
 func (i *impl) GetStartDate(ctx context.Context) (time.Time, error) {
