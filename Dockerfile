@@ -12,7 +12,7 @@ FROM alpine:3.16
 
 RUN apk add libc6-compat
 
-COPY --from=builder /tmp/art /art
+COPY --from=builder /tmp/art/art /art
 
 RUN chmod a+x /art
 
