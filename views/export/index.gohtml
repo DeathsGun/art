@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <title>ART - Export</title>
+    <style>
+        #previewContent {
+            min-height: 40vh;
+        }
+    </style>
+</head>
+<body>
+{{template "navbar" struct "Lang" .Lang "Site" "export"}}
+<div class="w-50 m-auto mt-5">
+    <form id="export">
+        <div class="form-floating m-2">
+            <select class="form-select form-control" aria-label="{{translate .Lang "PROVIDER"}}" id="provider"
+                    name="provider" required>
+                {{$lang := .Lang}}
+                {{range .Providers}}
+                    <option value="{{.}}">{{translate $lang .}}</option>
+                {{end}}
+            </select>
+            <label for="provider">{{translate .Lang "PROVIDER"}}</label>
+        </div>
+        <div class="form-floating m-2">
+            <input type="date" class="form-control" id="date" name="date" required>
+            <label for="date">{{translate .Lang "DATE"}}</label>
+        </div>
+        <div class="form-floating m-2 d-none">
+            <textarea id="previewContent" class="w-100 form-control" readonly></textarea>
+            <label for="previewContent">{{translate .Lang "PREVIEW"}}</label>
+        </div>
+        <div class="text-end">
+            <button id="preview" class="btn btn-secondary" type="button">{{translate .Lang "PREVIEW"}}</button>
+            <button class="btn btn-primary" type="submit">{{translate .Lang "EXPORT"}}</button>
+        </div>
+    </form>
+</div>
+
+{{template "error" struct "Lang" .Lang}}
+
+<script src="/assets/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+
+<script src="/assets/js/export.js"></script>
+</body>
+</html>

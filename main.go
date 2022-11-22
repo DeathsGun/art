@@ -1,96 +1,157 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/deathsgun/art/excel"
+	"context"
+	"embed"
+	"encoding/json"
+	authHttp "github.com/deathsgun/art/auth/http"
+	"github.com/deathsgun/art/config"
+	configHttp "github.com/deathsgun/art/config/http"
+	configModel "github.com/deathsgun/art/config/model"
+	"github.com/deathsgun/art/crypt"
+	"github.com/deathsgun/art/di"
 	"github.com/deathsgun/art/export"
-	"github.com/deathsgun/art/login"
-	"github.com/deathsgun/art/provider/registry"
-	"github.com/deathsgun/art/redmine"
-	"github.com/deathsgun/art/text"
+	exportHttp "github.com/deathsgun/art/export/http"
+	"github.com/deathsgun/art/i18n"
+	"github.com/deathsgun/art/ihk"
+	"github.com/deathsgun/art/provider"
+	providerInit "github.com/deathsgun/art/provider/init"
 	"github.com/deathsgun/art/untis"
+	untisHttp "github.com/deathsgun/art/untis/http"
+	"github.com/deathsgun/art/utils"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/template/html"
+	"github.com/rs/zerolog/log"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"io/fs"
+	"net/http"
 	"os"
 	"strings"
 )
 
-// init Register all possible providers before main is called
-func init() {
-	registry.ImportProviders = append(registry.ImportProviders, untis.NewUntisProvider(), redmine.NewRedmineProvider())
-	registry.ExportProviders = append(registry.ExportProviders, text.NewTextProvider(), excel.NewExcelProvider())
-}
+//go:embed views
+var views embed.FS
 
 func main() {
-	// Setup command arguments for login and export
-	loginCmd := flag.NewFlagSet("login", flag.ExitOnError)
-	loginProvider := loginCmd.String("provider", "", "")
-	loginUsername := loginCmd.String("username", "", "")
-	loginPassword := loginCmd.String("password", "", "")
+	app := fiber.New(fiber.Config{
+		AppName: "Azubi Report Tool",
+		Views:   setupEngine(),
+	})
+	app.Use(logger.New())
+	//TODO: CSRF
+	//TODO: CORS
+	//TODO: Caching
+	app.Static("/assets", "./assets")
 
-	exportCmd := flag.NewFlagSet("export", flag.ExitOnError)
-	exportDate := exportCmd.String("date", "", "")
-	exportOutput := exportCmd.String("output", "", "")
-	exportProvider := exportCmd.String("provider", "", "")
-	exportPrintDates := exportCmd.Bool("print-dates", false, "")
+	setupDatabase()
 
-	// Always require a sub command
-	if len(os.Args) < 2 {
-		printHelp()
-		return
-	}
-	// Check if position where the subcommand is
-	command := os.Args[1]
-	if strings.HasPrefix(command, "-") {
-		printHelp()
-		return
-	}
+	di.Set[crypt.ICryptService]("crypt", crypt.New())
+	di.Set[untis.IUntisService]("untis", untis.NewService())
+	di.Set[i18n.ITranslationService]("i18n", i18n.New())
+	di.Set[config.IConfigService]("configService", config.New())
+	di.Set[provider.IProviderService]("providerService", provider.New())
+	di.Set[export.IExportService]("exportService", export.New())
+	di.Set[ihk.IIHKService]("ihkService", ihk.New())
 
-	switch command {
-	case "login":
-		err := loginCmd.Parse(os.Args[2:])
-		if err != nil {
-			panic(err)
-		}
-		login.HandleLogin(*loginProvider, *loginUsername, *loginPassword)
-		return
-	case "export":
-		err := exportCmd.Parse(os.Args[2:])
-		if err != nil {
-			panic(err)
-		}
-		export.HandleExport(*exportProvider, *exportDate, *exportOutput, *exportPrintDates)
-		return
-	case "providers":
-		println("Import providers:")
-		for _, importProvider := range registry.ImportProviders {
-			println(" - " + importProvider.Name())
-		}
-		println("Export providers:")
-		for _, exportProvider := range registry.ExportProviders {
-			println(" - " + exportProvider.Name())
-		}
-		return
-	default:
-		fmt.Printf("unknown command \"%s\" for \"art\"\n", command)
-		println()
-		printHelp()
-		return
+	providerInit.InitializeProvider()
+
+	authHttp.Initialize(app)
+	untisHttp.Initialize(app)
+	configHttp.Initialize(app)
+	exportHttp.Initialize(app)
+
+	err := app.Listen(":3000")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to start webserver on port 3000")
 	}
 }
 
-func printHelp() {
-	println("Usage: art <command> [flags]\n")
-	println("COMMANDS")
-	println("\tlogin - allows you to setup all")
-	println("\texport - collects data from all import providers and exports them using the export provider")
-	println("\tproviders - lists all import and export providers")
-	println("COMMON FLAGS")
-	println("\t--provider <name> the provider you want to use for export or login")
-	println("LOGIN FLAGS")
-	println("\t--username <user>")
-	println("\t--password <password>")
-	println("EXPORT FLAGS")
-	println("\t--date (dd.MM.YYYY) the date of a week from which data should be exported")
-	println("\t--output (output directory) the directory where the reports should be exported to (defaults to the current work directory)")
-	println("\t--print-dates groups report entries by date and adds the date as header")
+func setupEngine() *html.Engine {
+	views, err := fs.Sub(views, "views")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to get views folder")
+	}
+	engine := html.NewFileSystem(http.FS(views), ".gohtml")
+	if os.Getenv("DEV_MODE") == "true" {
+		engine = html.New("./views", ".gohtml")
+		engine.Reload(true)
+		engine.Debug(true)
+	}
+	engine.AddFunc("translate", func(acceptHeader string, id string, args ...any) string {
+		translationService := di.Instance[i18n.ITranslationService]("i18n")
+		return translationService.Translate(context.WithValue(context.Background(), i18n.LanguageCtxKey, acceptHeader), id, args)
+	})
+	engine.AddFunc("contains", func(slice []any, v any) bool {
+		for _, b := range slice {
+			if v == b {
+				return true
+			}
+		}
+		return false
+	})
+	engine.AddFunc("lowercase", strings.ToLower)
+	engine.AddFunc("struct", func(params ...any) interface{} {
+		obj := map[string]any{}
+		for i, param := range params {
+			if i%2 == 0 {
+				continue
+			}
+			obj[params[i-1].(string)] = param
+		}
+		data, err := json.Marshal(obj)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to convert to struct")
+		}
+		var result interface{}
+		if err = json.Unmarshal(data, &result); err != nil {
+			log.Fatal().Err(err).Msg("Failed to convert to struct")
+		}
+		return result
+	})
+	engine.AddFunc("hasCapability", func(name string, capability string) bool {
+		providerService := di.Instance[provider.IProviderService]("providerService")
+		prov, ok := providerService.GetProvider(name)
+		if !ok {
+			return false
+		}
+		var c provider.Capability
+		switch capability {
+		case "configurable":
+			c = provider.Configurable
+		case "server":
+			c = provider.ConfigServer
+		case "username":
+			c = provider.ConfigServer
+		case "password":
+			c = provider.ConfigPassword
+		case "department":
+			c = provider.ConfigDepartment
+		case "instructor-email":
+			c = provider.ConfigInstructorEmail
+		case "send-directly":
+			c = provider.ConfigSendDirectly
+		case "import":
+			c = provider.TypeImport
+		case "export":
+			c = provider.TypeExport
+		default:
+			return false
+		}
+		return utils.Contains(prov.Capabilities(), c)
+	})
+	return engine
+}
+
+func setupDatabase() {
+	db, err := gorm.Open(sqlite.Open("out/art.db"), &gorm.Config{PrepareStmt: true})
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to open database")
+	}
+	err = db.AutoMigrate(&configModel.ProviderConfig{})
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to auto migrate provider configs")
+	}
+	di.Set[*gorm.DB]("database", db)
 }

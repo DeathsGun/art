@@ -1,0 +1,54 @@
+{{define "provider-input"}}
+    <div class="form-floating m-1">
+        <input type="{{.Type}}" class="form-control" id="{{.ProviderId}}{{.Id}}" name="{{.Id}}"
+               autocomplete="{{.Autocomplete}}"
+               placeholder="{{.Placeholder}}" required>
+        <label for="{{.ProviderId}}{{.Id}}">{{translate .Lang .Text}}</label>
+    </div>
+{{end}}
+
+{{define "provider-config"}}
+    <div id="{{.ProviderId}}" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{translate .Lang .ProviderId}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pb-1">
+                    <form id="{{.ProviderId}}-form" class="w-75 m-auto">
+                        {{if hasCapability .ProviderId "server"}}
+                            {{$input := struct "Lang" .Lang "Text" "SERVER" "ProviderId" .ProviderId "Type" "text" "Placeholder" "example.com" "Id" "server" "Autocomplete" "none"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
+                        {{if hasCapability .ProviderId "username"}}
+                            {{$input := struct "Lang" .Lang "Text" "USERNAME" "ProviderId" .ProviderId "Type" "text" "Placeholder" "john.doe" "Id" "username" "Autocomplete" "username"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
+                        {{if hasCapability .ProviderId "password"}}
+                            {{$input := struct "Lang" .Lang "Text" "PASSWORD" "ProviderId" .ProviderId "Type" "password" "Placeholder" "password" "Id" "password" "Autocomplete" "password"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
+                        {{if hasCapability .ProviderId "department"}}
+                            {{$input := struct "Lang" .Lang "Text" "DEPARTMENT" "ProviderId" .ProviderId "Type" "text" "Placeholder" "Example" "Id" "department" "Autocomplete" "none"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
+                        {{if hasCapability .ProviderId "instructor-email"}}
+                            {{$input := struct "Lang" .Lang "Text" "INSTRUCTOR_EMAIL" "ProviderId" .ProviderId "Type" "email" "Placeholder" "john.doe@example.com" "Id" "instructor" "Autocomplete" "none"}}
+                            {{template "provider-input" $input}}
+                        {{end}}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-reset"
+                            data-bs-dismiss="modal"
+                            data-bs-provider="{{.ProviderId}}">{{translate .Lang "RESET"}}</button>
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{translate .Lang "CANCEL"}}</button>
+                    <button type="submit" class="btn btn-primary"
+                            form="{{.ProviderId}}-form">{{translate .Lang "SAVE"}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{{end}}

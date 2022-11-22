@@ -3,10 +3,10 @@ package redmine
 import "time"
 
 type AccountResponse struct {
-	User RedmineUser `json:"user"`
+	User User `json:"user"`
 }
 
-type RedmineUser struct {
+type User struct {
 	Id        int       `json:"id"`
 	UserName  string    `json:"login"`
 	IsAdmin   bool      `json:"admin"`

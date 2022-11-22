@@ -4,20 +4,13 @@ import (
 	"encoding/base64"
 )
 
-type RedmineAuthType int
+type AuthType int
 
-type RedmineAuthorization struct {
-	RedmineUser     string
-	RedminePassword string
+type Authorization struct {
+	User     string
+	Password string
 }
 
-func (r *RedmineAuthorization) BuildAuthorizationHeader() string {
-	return "Basic " + base64.StdEncoding.EncodeToString([]byte(r.RedmineUser+":"+r.RedminePassword))
-}
-
-func AuthorizeHTTP(username string, password string) *RedmineAuthorization {
-	return &RedmineAuthorization{
-		RedmineUser:     username,
-		RedminePassword: password,
-	}
+func (r *Authorization) BuildAuthorizationHeader() string {
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(r.User+":"+r.Password))
 }

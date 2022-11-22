@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -14,22 +15,22 @@ import (
 type Redmine struct {
 	Url           string
 	Client        http.Client
-	Authorization RedmineAuthorization
-	RedmineUser   RedmineUser
+	Authorization *Authorization
+	User          *User
 }
 
-func (r *Redmine) GetAccountInformation() (*AccountResponse, error) {
+func (r *Redmine) GetAccountInformation(ctx context.Context) (*AccountResponse, error) {
 	result := &AccountResponse{}
-	err := r.CreateHTTPRequest("/my/account.json", url.Values{}, result)
+	err := r.CreateHTTPRequest(ctx, "/my/account.json", url.Values{}, result)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (r *Redmine) GetIssues(limit int, page int) (*IssueResponse, error) {
+func (r *Redmine) GetIssues(ctx context.Context, limit int, page int) (*IssueResponse, error) {
 	result := &IssueResponse{}
-	err := r.CreateHTTPRequest("/issues.json", url.Values{
+	err := r.CreateHTTPRequest(ctx, "/issues.json", url.Values{
 		"limit":  []string{strconv.Itoa(limit)},
 		"offset": []string{strconv.Itoa(limit * page)},
 	}, result)
@@ -39,13 +40,13 @@ func (r *Redmine) GetIssues(limit int, page int) (*IssueResponse, error) {
 	return result, nil
 }
 
-func (r *Redmine) GetIssueDetails(limit int, page int, issueIds ...int) (*IssueResponse, error) {
+func (r *Redmine) GetIssueDetails(ctx context.Context, limit int, page int, issueIds ...int) (*IssueResponse, error) {
 	result := &IssueResponse{}
 	s, err := json.Marshal(issueIds)
 	if err != nil {
 		return nil, err
 	}
-	err = r.CreateHTTPRequest("/issues.json", url.Values{
+	err = r.CreateHTTPRequest(ctx, "/issues.json", url.Values{
 		"limit":    []string{strconv.Itoa(limit)},
 		"offset":   []string{strconv.Itoa(limit * page)},
 		"issue_id": []string{strings.Trim(string(s), "[]")},
@@ -56,12 +57,12 @@ func (r *Redmine) GetIssueDetails(limit int, page int, issueIds ...int) (*IssueR
 	return result, nil
 }
 
-func (r *Redmine) GetTimeEntries(limit int, page int, from time.Time, to time.Time) (*TimeEntriesResponse, error) {
+func (r *Redmine) GetTimeEntries(ctx context.Context, limit int, page int, from time.Time, to time.Time) (*TimeEntriesResponse, error) {
 	result := &TimeEntriesResponse{}
-	err := r.CreateHTTPRequest("/time_entries.json", url.Values{
+	err := r.CreateHTTPRequest(ctx, "/time_entries.json", url.Values{
 		"limit":   []string{strconv.Itoa(limit)},
 		"offset":  []string{strconv.Itoa(limit * page)},
-		"user_id": []string{strconv.Itoa(r.RedmineUser.Id)},
+		"user_id": []string{strconv.Itoa(r.User.Id)},
 		"from":    []string{from.Format("2006-01-02")},
 		"to":      []string{to.Format("2006-01-02")},
 	}, result)
@@ -71,13 +72,13 @@ func (r *Redmine) GetTimeEntries(limit int, page int, from time.Time, to time.Ti
 	return result, nil
 }
 
-func (r *Redmine) CreateHTTPRequest(endpoint string, params url.Values, result any) error {
+func (r *Redmine) CreateHTTPRequest(ctx context.Context, endpoint string, params url.Values, result any) error {
 	endpointURL, err := url.Parse(r.Url + endpoint)
 	if err != nil {
 		return err
 	}
 	endpointURL.RawQuery = params.Encode()
-	req, err := http.NewRequest(http.MethodGet, endpointURL.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpointURL.String(), nil)
 	if err != nil {
 		return err
 	}
@@ -98,7 +99,7 @@ func (r *Redmine) CreateHTTPRequest(endpoint string, params url.Values, result a
 	return nil
 }
 
-func NewRedmineAPI(baseURL string, authorization *RedmineAuthorization) (*Redmine, error) {
+func NewRedmineAPI(ctx context.Context, baseURL string, authorization *Authorization) (*Redmine, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err
@@ -109,12 +110,12 @@ func NewRedmineAPI(baseURL string, authorization *RedmineAuthorization) (*Redmin
 			Jar:     jar,
 			Timeout: 5 * time.Second,
 		},
-		Authorization: *authorization,
+		Authorization: authorization,
 	}
-	accountResponse, err := redmine.GetAccountInformation()
+	accountResponse, err := redmine.GetAccountInformation(ctx)
 	if err != nil {
 		return nil, err
 	}
-	redmine.RedmineUser = accountResponse.User
+	redmine.User = &accountResponse.User
 	return redmine, nil
 }
