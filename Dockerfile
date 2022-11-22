@@ -10,7 +10,11 @@ RUN go build -o art .
 
 FROM alpine:3.16
 
+RUN apk add libc6-compat
+
 COPY --from=builder /tmp/art /art
+
+RUN chmod a+x /art
 
 RUN mkdir -p out/
 
